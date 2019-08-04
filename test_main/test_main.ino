@@ -2,7 +2,6 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
-
 class Data
 {
   private:
@@ -182,7 +181,11 @@ class Rotary
 
     float rotary()
     {
-      state = (digitalRead(_s1) << 1) | digitalRead(_s2);
+      for(uint8_t i = 0 ; i < 10 ; i++)
+      {
+        state = (digitalRead(_s1) << 1) | digitalRead(_s2);
+      }
+      
       count += encoderStates[prevState][state] * 0.2;
 
       if (state != prevState) {
@@ -202,7 +205,7 @@ class Rotary
         while (!digitalRead(_bt));
         delay(50);
         prss = 1;
-//        Serial.println(prss);
+        //        Serial.println(prss);
       }
       else
       {
@@ -355,7 +358,7 @@ class Menu
       lcd.print(" g/s");
       lcd.setCursor(3, 3);
       lcd.print("EXIT MENU");
-
+      
       uint8_t cursur = rt.rotary();
       while (1)
       {
@@ -371,6 +374,7 @@ class Menu
           while (!rt.rotaryPress())
           {
             duty = rt.rotary();
+            Serial.println(rt.rotary());
             duty += datas.getpwm_calibated();
             duty = duty < 0 ? 0 : duty;
             duty = duty > 100 ? 100 : duty;
@@ -390,6 +394,7 @@ class Menu
           while (!rt.rotaryPress())
           {
             feed = rt.rotary();
+            Serial.println(rt.rotary());
             feed += datas.getfeed_calibated();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
@@ -403,7 +408,6 @@ class Menu
             lcd.setCursor(10, 2);
             lcd.print(feed);
             lcd.print(" g/s");
-            Serial.println(feed);
           }
           datas.setfeed_calibated(feed);
           rt.count = 0;
@@ -448,6 +452,7 @@ class Menu
           uint8_t rate;
           while (!rt.rotaryPress())
           {
+            Serial.println(rt.rotary());
             rate = rt.rotary();
             rate += datas.getrate_sett();
             rate = rate < 0 ? 0 : rate;
@@ -468,6 +473,7 @@ class Menu
           uint8_t width;
           while (!rt.rotaryPress())
           {
+            Serial.println(rt.rotary());
             width = rt.rotary();
             width += datas.getwidth_sett();
             width = width < 0 ? 0 : width;
@@ -487,6 +493,7 @@ class Menu
           uint8_t cal;
           while (!rt.rotaryPress())
           {
+            Serial.println(rt.rotary());
             cal = rt.rotary();
             cal += datas.getcal_sett();
             cal = cal < 0 ? 0 : cal;
@@ -524,7 +531,7 @@ class Menu
       rt.count = 0;
       uint8_t cursur = rt.rotary();
       uint8_t state = 0;
-      
+
       while (1)
       {
         cursur = rt.rotary();
@@ -535,16 +542,16 @@ class Menu
         if (cursur >= 7) break;
         if (cursur >= 4)
         {
-          cursur = cursur >= 7 ? 6:cursur;
+          cursur = cursur >= 7 ? 6 : cursur;
           lcd.setCursor(19, cursur - 3);
         }
         else
         {
           lcd.setCursor(19, cursur);
         }
-        
+
         lcd.print("<");
-        
+
         if (cursur >= 4 and state != 2)
         {
           rt.count = 4;
@@ -572,7 +579,7 @@ class Menu
           Serial.println(EEPROM.read(0));
           Serial.println(EEPROM.read(1));
           Serial.println(EEPROM.read(2));
-          
+
           datas.setrate_sett(EEPROM.read(0));
           datas.setwidth_sett(EEPROM.read(1));
           datas.setcal_sett(EEPROM.read(2));
@@ -595,7 +602,7 @@ class Menu
           rt.count = 0;
           break;
         }
-        else if(cursur == 4 and rt.rotaryPress())
+        else if (cursur == 4 and rt.rotaryPress())
         {
           datas.setrate_sett(EEPROM.read(9));
           datas.setwidth_sett(EEPROM.read(10));
@@ -653,7 +660,7 @@ class Menu
       rt.count = 0;
       uint8_t cursur = rt.rotary();
       uint8_t state = 0;
-      
+
       while (1)
       {
         cursur = rt.rotary();
@@ -664,16 +671,16 @@ class Menu
         if (cursur >= 7) break;
         if (cursur >= 4)
         {
-          cursur = cursur >= 7 ? 6:cursur;
+          cursur = cursur >= 7 ? 6 : cursur;
           lcd.setCursor(19, cursur - 3);
         }
         else
         {
           lcd.setCursor(19, cursur);
         }
-        
+
         lcd.print("<");
-        
+
         if (cursur >= 4 and state != 2)
         {
           rt.count = 4;
@@ -698,19 +705,10 @@ class Menu
         }
         if (cursur == 1 and rt.rotaryPress())
         {
-//          Serial.println(datas.getrate_sett());
-//          Serial.println(datas.getwidth_sett());
-//          Serial.println(datas.getcal_sett());
 
           EEPROM.write(0 , (uint8_t)datas.getrate_sett());
           EEPROM.write(1 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(2 , (uint8_t)datas.getcal_sett());
-          
-//          Serial.println("-------");
-//          Serial.println(EEPROM.read(0));
-//          Serial.println(EEPROM.read(1));
-//          Serial.println(EEPROM.read(2));
-          
           rt.count = 0;
           break;
         }
@@ -730,7 +728,7 @@ class Menu
           rt.count = 0;
           break;
         }
-        else if(cursur == 4 and rt.rotaryPress())
+        else if (cursur == 4 and rt.rotaryPress())
         {
           EEPROM.write(9 , (uint8_t)datas.getrate_sett());
           EEPROM.write(10 , (uint8_t)datas.getwidth_sett());
@@ -756,7 +754,7 @@ class Menu
         }
       }
 
-      
+
     }
 
 };
@@ -768,15 +766,31 @@ void setup() {
   Serial.begin(115200);
   lcd.begin();
   EEPROM.begin(64);
-  
+
+  xTaskCreate(
+                    taskOne,          /* Task function. */
+                    "TaskOne",        /* String with name of task. */
+                    40000,            /* Stack size in bytes. */
+                    NULL,             /* Parameter passed as input of the task */
+                    1,                /* Priority of the task. */
+                    NULL);            /* Task handle. */
+
+//  xTaskCreate(
+//                    taskTwo,          /* Task function. */
+//                    "TaskTwo",        /* String with name of task. */
+//                    40000,            /* Stack size in bytes. */
+//                    NULL,             /* Parameter passed as input of the task */
+//                    2,                /* Priority of the task. */
+//                    NULL);    
+
   menu.pages(0);
   while (!rt.rotaryPress());
   menu.pages(1);
   while (!rt.rotaryPress());
 }
 
-void loop() {
-
+void loop() 
+{
   menu.cursur = rt.rotary();
   menu.menucursor();
   menu.pagechange();
@@ -792,5 +806,45 @@ void loop() {
       case 6: menu.save();       menu.pages(2); rt.count = 0; break;
       default:                                                break;
     }
-  }
+  }  
 }
+
+void taskOne( void * parameter )
+{
+  while(1){
+    Serial.println(rt.rotary());
+    vTaskDelay(10);
+  }
+  vTaskDelete( NULL );
+}
+ 
+//void taskTwo( void * parameter)
+//{
+//
+//  menu.pages(0);
+//  while (!rt.rotaryPress());
+//  menu.pages(1);
+//  while (!rt.rotaryPress());
+//  
+//  while(1)
+//  {
+//    menu.cursur = rt.rotary();
+//    menu.menucursor();
+//    menu.pagechange();
+//  
+//    if (rt.rotaryPress()) {
+//      switch (menu.cursur_select)
+//      {
+//        case 1: menu.calibation(); menu.pages(2); rt.count = 0; break;
+//        case 2: menu.settiing();   menu.pages(2); rt.count = 0; break;
+//        case 3: menu.drain();      menu.pages(2); rt.count = 0; break;
+//        case 4: menu.program();    menu.pages(2); rt.count = 0; break;
+//        case 5: menu.setDefult();  menu.pages(2); rt.count = 0; break;
+//        case 6: menu.save();       menu.pages(2); rt.count = 0; break;
+//        default:                                                break;
+//      }
+//    }
+//    vTaskDelay(10);
+//  }
+//  vTaskDelete( NULL );
+//}
