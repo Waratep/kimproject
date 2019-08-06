@@ -975,13 +975,30 @@ class Menu
     }
     uint8_t calculator()
     {
-      float slope = 0.02 * (getfeed_calibated_2() - getfeed_calibated_1());  
-      float offset = getfeed_calibated_1() - (25 * slope);
+      float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());  
+      float offset = datas.getfeed_calibated_1() - (25 * slope);
 
-      float feed = get_rate() * get_width() * get_speed() / 5.76;
+      float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
       uint8_t pwm = slope * feed - offset;
       
       return pwm;
+    }
+    void run_pwm(uint8_t pwm)
+    {
+      const int ledPin = 12;  
+      // setting PWM properties
+      const int freq = 5000;
+      const int ledChannel = 0;
+      const int resolution = 8;
+      
+      ledcSetup(ledChannel, freq, resolution);
+      // attach the channel to the GPIO to be controlled
+      ledcAttachPin(ledPin, ledChannel);
+      pwm = pwm <= 0 ? 0:pwm;
+      pwm = pwm >= 255 ? 255:pwm;
+      ledcWrite(ledChannel, pwm);
+//      delay(1000);
+//      ledcWrite(ledChannel, 0);
     }
 };
 
