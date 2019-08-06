@@ -10,9 +10,12 @@ class Data
     float _speed;
     float _width;
     float _feed;
+    uint8_t _pwm;
 
-    uint8_t pwm_calibated;
-    float   feed_calibated;
+    uint8_t pwm_calibated_1;
+    float   feed_calibated_1;
+    uint8_t pwm_calibated_2;
+    float   feed_calibated_2;
 
     float rate_sett;
     float width_sett;
@@ -30,9 +33,11 @@ class Data
       _width = 0;
       _feed = 0;
 
-      pwm_calibated = 0;
-      feed_calibated = 0;
-
+      pwm_calibated_1 = 0;
+      feed_calibated_1 = 0;
+      pwm_calibated_2 = 0;
+      feed_calibated_2 = 0;
+      
       rate_sett = 0;
       width_sett = 0;
       cal_sett = 0;
@@ -73,25 +78,48 @@ class Data
     {
       _feed = feed;
     }
-
-    uint8_t getpwm_calibated()
+    uint8_t get_pwm()
     {
-      return pwm_calibated;
+      return _pwm;
     }
-    uint8_t setpwm_calibated(uint8_t pwm)
+    uint8_t set_pwm(uint8_t pwm)
     {
-      pwm_calibated = pwm;
+      _pwm = pwm;
     }
-    float getfeed_calibated()
+    
+    uint8_t getpwm_calibated_1()
     {
-      return feed_calibated;
+      return pwm_calibated_1;
     }
-    float setfeed_calibated(float feed)
+    uint8_t setpwm_calibated_1(uint8_t pwm)
     {
-      feed_calibated = feed;
+      pwm_calibated_1 = pwm;
     }
-
-
+    float getfeed_calibated_1()
+    {
+      return feed_calibated_1;
+    }
+    float setfeed_calibated_1(float feed)
+    {
+      feed_calibated_1 = feed;
+    }
+    uint8_t getpwm_calibated_2()
+    {
+      return pwm_calibated_2;
+    }
+    uint8_t setpwm_calibated_2(uint8_t pwm)
+    {
+      pwm_calibated_2 = pwm;
+    }
+    float getfeed_calibated_2()
+    {
+      return feed_calibated_2;
+    }
+    float setfeed_calibated_2(float feed)
+    {
+      feed_calibated_2 = feed;
+    }
+    
     float getrate_sett()
     {
       return rate_sett;
@@ -100,7 +128,6 @@ class Data
     {
       rate_sett = rate;
     }
-
     float getwidth_sett()
     {
       return width_sett;
@@ -109,7 +136,6 @@ class Data
     {
       width_sett = width;
     }
-
     float getcal_sett()
     {
       return cal_sett;
@@ -118,7 +144,6 @@ class Data
     {
       cal_sett = cal;
     }
-
     float getrate_defult()
     {
       return rate_defult;
@@ -127,7 +152,6 @@ class Data
     {
       rate_defult = rate;
     }
-
     float getwidth_defult()
     {
       return width_defult;
@@ -136,7 +160,6 @@ class Data
     {
       width_defult = width;
     }
-
     float getcal_defult()
     {
       return cal_defult;
@@ -145,7 +168,6 @@ class Data
     {
       cal_defult = cal;
     }
-
 };
 
 Data datas;
@@ -249,6 +271,7 @@ class Menu
         case 1: page_1();                  break;
         case 2: main_page_1(); cursur = 1; break;
         case 3: main_page_2(); cursur = 1; break;
+        case 4: main_page_3(); cursur = 1; break;
         default:                           break;
       }
     }
@@ -261,7 +284,7 @@ class Menu
     }
     void updateCursor()
     {
-      if ((uint8_t)cursur >= 7) cursur = 6;
+      if ((uint8_t)cursur >= 8) cursur = 7;
       if ((uint8_t)cursur <= 1) cursur = 1;
 
       if ((uint8_t)cursur > 0 and ((uint8_t)cursur <= 3))
@@ -280,6 +303,14 @@ class Menu
         lcd.print("<");
         page = 3;
       }
+      else if ((uint8_t)cursur > 6 and ((uint8_t)cursur <= 7))
+      {
+        last_page = page;
+        cursur_select = (uint8_t)cursur;
+        lcd.setCursor(19, 1);
+        lcd.print("<");
+        page = 4;
+      }
     }
     void page_0()
     {
@@ -289,19 +320,21 @@ class Menu
       lcd.setCursor(4, 2);
       lcd.print("KMITL  RC-1");
       page = 0;
+      while (!rt.rotaryPress());
     }
     void page_1()
     {
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("RATE : 00.0 kg/r");
+      lcd.print("RATE : "); lcd.print(datas.get_rate()); lcd.print(" kg/r");
       lcd.setCursor(0, 1);
-      lcd.print("SPEED:  0.0 km/r");
+      lcd.print("SPEED: "); lcd.print(datas.get_speed()); lcd.print(" km/r");
       lcd.setCursor(0, 2);
-      lcd.print("WIDTH:  0.0 m");
+      lcd.print("WIDTH: "); lcd.print(datas.get_width()); lcd.print(" m");
       lcd.setCursor(0, 3);
-      lcd.print("FEED :  0.  g/s");
+      lcd.print("FEED : "); lcd.print(datas.get_feed()); lcd.print(" g/s");
       page = 1;
+      while (!rt.rotaryPress());
     }
     void main_page_1()
     {
@@ -315,6 +348,7 @@ class Menu
       lcd.setCursor(5, 3);
       lcd.print("DRAIN");
       page = 2;
+      
     }
     void main_page_2()
     {
@@ -328,6 +362,15 @@ class Menu
       lcd.setCursor(5, 3);
       lcd.print("SAVE");
       page = 3;
+    }
+    void main_page_3()
+    {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("MENU:PRESS TO ACT");
+      lcd.setCursor(5, 1);
+      lcd.print("DISPLAY");
+      page = 4;
     }
     uint8_t pagechange()
     {
@@ -348,14 +391,96 @@ class Menu
       lcd.print("MENU:CALIBATION");
       lcd.setCursor(1, 1);
       lcd.print("%PWM    :");
-      lcd.print(datas.getpwm_calibated());
+      lcd.print(datas.getpwm_calibated_1());
       lcd.print("%");
       lcd.setCursor(1, 2);
       lcd.print("FEED@");
-      lcd.print(datas.getpwm_calibated());
+      lcd.print(datas.getpwm_calibated_1());
       lcd.setCursor(9, 2);
       lcd.print(":");
-      lcd.print(datas.getfeed_calibated());
+      lcd.print(datas.getfeed_calibated_1());
+      lcd.print(" g/s");
+      lcd.setCursor(3, 3);
+      lcd.print("NEXT ->");
+
+      uint8_t cursur = rt.rotary();
+      while (1)
+      {
+        cursur = rt.rotary() * 2;
+        cursur = cursur >= 3 ? 3 : cursur;
+        cursur = cursur <= 1 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+        if (cursur == 1 and rt.rotaryPress())
+        {
+          uint8_t duty;
+          rt.count = 0;
+          while (!rt.rotaryPress())
+          {
+            duty = rt.rotary() * 2;
+//            Serial.println(rt.rotary());
+            duty += datas.getpwm_calibated_1();
+            duty = duty < 0 ? 0 : duty;
+            duty = duty > 100 ? 100 : duty;
+            lcd.setCursor(10, 1);
+            lcd.print("    ");
+            lcd.setCursor(10, 1);
+            lcd.print(duty);
+            lcd.print("%");
+
+          }
+          datas.setpwm_calibated_1(duty);
+          rt.count = 0;
+        }
+        else if (cursur == 2 and rt.rotaryPress())
+        {
+          float feed;
+          rt.count = 0;
+          while (!rt.rotaryPress())
+          {
+            feed = rt.rotary();
+//            Serial.println(rt.rotary());
+            feed += datas.getfeed_calibated_1();
+            feed = feed < 0 ? 0 : feed;
+            feed = feed > 100 ? 100 : feed;
+            lcd.setCursor(1, 2);
+            lcd.print("FEED@");
+            lcd.print(datas.getpwm_calibated_1());
+            lcd.setCursor(9, 2);
+            lcd.print(":");
+            lcd.setCursor(10, 2);
+            lcd.print("          ");
+            lcd.setCursor(10, 2);
+            lcd.print(feed);
+            lcd.print(" g/s");
+          }
+          datas.setfeed_calibated_1(feed);
+          rt.count = 0;
+        }
+        else if (cursur == 3 and rt.rotaryPress())
+        {
+          calibation_2();
+          break;
+        }
+      }
+      subpage = 1;
+    }
+    uint8_t calibation_2()
+    {
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU:CALIBATION");
+      lcd.setCursor(1, 1);
+      lcd.print("%PWM    :");
+      lcd.print(datas.getpwm_calibated_2());
+      lcd.print("%");
+      lcd.setCursor(1, 2);
+      lcd.print("FEED@");
+      lcd.print(datas.getpwm_calibated_2());
+      lcd.setCursor(9, 2);
+      lcd.print(":");
+      lcd.print(datas.getfeed_calibated_2());
       lcd.print(" g/s");
       lcd.setCursor(3, 3);
       lcd.print("EXIT MENU");
@@ -377,7 +502,7 @@ class Menu
           {
             duty = rt.rotary() * 2;
 //            Serial.println(rt.rotary());
-            duty += datas.getpwm_calibated();
+            duty += datas.getpwm_calibated_2();
             duty = duty < 0 ? 0 : duty;
             duty = duty > 100 ? 100 : duty;
             lcd.setCursor(10, 1);
@@ -387,7 +512,7 @@ class Menu
             lcd.print("%");
 
           }
-          datas.setpwm_calibated(duty);
+          datas.setpwm_calibated_2(duty);
           rt.count = 0;
         }
         else if (cursur == 2 and rt.rotaryPress())
@@ -398,12 +523,12 @@ class Menu
           {
             feed = rt.rotary();
 //            Serial.println(rt.rotary());
-            feed += datas.getfeed_calibated();
+            feed += datas.getfeed_calibated_2();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
             lcd.setCursor(1, 2);
             lcd.print("FEED@");
-            lcd.print(datas.getpwm_calibated());
+            lcd.print(datas.getpwm_calibated_2());
             lcd.setCursor(9, 2);
             lcd.print(":");
             lcd.setCursor(10, 2);
@@ -412,7 +537,7 @@ class Menu
             lcd.print(feed);
             lcd.print(" g/s");
           }
-          datas.setfeed_calibated(feed);
+          datas.setfeed_calibated_1(feed);
           rt.count = 0;
         }
         else if (cursur == 3 and rt.rotaryPress())
@@ -848,6 +973,16 @@ class Menu
         }
       }
     }
+    uint8_t calculator()
+    {
+      float slope = 0.02 * (getfeed_calibated_2() - getfeed_calibated_1());  
+      float offset = getfeed_calibated_1() - (25 * slope);
+
+      float feed = get_rate() * get_width() * get_speed() / 5.76;
+      uint8_t pwm = slope * feed - offset;
+      
+      return pwm;
+    }
 };
 
 Menu menu;
@@ -857,7 +992,6 @@ void setup() {
   Serial.begin(115200);
   lcd.begin();
   EEPROM.begin(64);
-
   xTaskCreate(
                     taskOne,          /* Task function. */
                     "TaskOne",        /* String with name of task. */
@@ -865,12 +999,8 @@ void setup() {
                     NULL,             /* Parameter passed as input of the task */
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
-
-
   menu.pages(0);
-  while (!rt.rotaryPress());
   menu.pages(1);
-  while (!rt.rotaryPress());
 }
 
 void loop() 
@@ -888,15 +1018,15 @@ void loop()
       case 4: menu.program();    menu.pages(2); rt.count = 0; break;
       case 5: menu.setDefult();  menu.pages(2); rt.count = 0; break;
       case 6: menu.save();       menu.pages(2); rt.count = 0; break;
+      case 7: menu.pages(1);     menu.pages(2); rt.count = 0; break;
       default:                                                break;
     }
-  }  
+  }    
 }
 
 void taskOne( void * parameter )
 {
   while(1){
-//    Serial.println(rt.rotary());
     rt.rotary();
     vTaskDelay(10);
   }
