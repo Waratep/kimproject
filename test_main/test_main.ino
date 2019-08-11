@@ -3,6 +3,16 @@
 #include <EEPROM.h>
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
+#define home_bt 33
+#define run_bt 34
+
+#define pwm_output 35
+const int freq = 5000;
+const int ledChannel = 0;
+const int resolution = 12;
+
+uint8_t state_run = 0;
+
 class Data
 {
   private:
@@ -284,7 +294,7 @@ class Menu
     }
     void updateCursor()
     {
-      if ((uint8_t)cursur >= 8) cursur = 7;
+      if ((uint8_t)cursur >= 7) cursur = 6;
       if ((uint8_t)cursur <= 1) cursur = 1;
 
       if ((uint8_t)cursur > 0 and ((uint8_t)cursur <= 3))
@@ -1009,6 +1019,10 @@ void setup() {
   Serial.begin(115200);
   lcd.begin();
   EEPROM.begin(64);
+
+  pinMode(home_bt,INPUT);
+  pinMode(run_bt,INPUT);
+  
   xTaskCreate(
                     taskOne,          /* Task function. */
                     "TaskOne",        /* String with name of task. */
@@ -1016,6 +1030,10 @@ void setup() {
                     NULL,             /* Parameter passed as input of the task */
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
+
+  ledcSetup(ledChannel, freq, resolution);
+  ledcAttachPin(pwm_output, ledChannel);
+  
   menu.pages(0);
   menu.pages(1);
 }
@@ -1023,10 +1041,14 @@ void setup() {
 void loop() 
 {
   menu.cursur = rt.rotary() * 2;
+  rt.count = rt.count > 6 ? 6:rt.count;
+  rt.count = rt.count < 0 ? 0:rt.count;
+
   menu.menucursor();
   menu.pagechange();
 
-  if (rt.rotaryPress()) {
+  if (rt.rotaryPress()) 
+  {
     switch (menu.cursur_select)
     {
       case 1: menu.calibation(); menu.pages(2); rt.count = 0; break;
@@ -1035,17 +1057,36 @@ void loop()
       case 4: menu.program();    menu.pages(2); rt.count = 0; break;
       case 5: menu.setDefult();  menu.pages(2); rt.count = 0; break;
       case 6: menu.save();       menu.pages(2); rt.count = 0; break;
-      case 7: menu.pages(1);     menu.pages(2); rt.count = 0; break;
       default:                                                break;
     }
-  }    
+  }
+  
+  if (!digitalRead(home_bt))
+  {
+    while (!digitalRead(home_bt));
+    menu.pages(1);     
+    menu.pages(2); 
+    rt.count = 0;
+  }
+  if (!digitalRead(run_bt) and state_run == 0)
+  {
+    state_run = 1;
+    ledcWrite(ledChannel, 50);
+    Serial.println(state_run);
+  }
+  else if (digitalRead(run_bt) and state_run == 1)
+  {
+    state_run = 0;
+    ledcWrite(ledChannel, 0);
+    Serial.println(state_run);
+  }
 }
 
 void taskOne( void * parameter )
 {
   while(1){
     rt.rotary();
-    vTaskDelay(10);
+    vTaskDelay(5);
   }
   vTaskDelete( NULL );
 }
