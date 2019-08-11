@@ -5,12 +5,6 @@ LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 #define home_bt 33
 #define run_bt 34
-
-#define pwm_output 35
-const int freq = 5000;
-const int ledChannel = 0;
-const int resolution = 12;
-
 uint8_t state_run = 0;
 
 class Data
@@ -999,7 +993,7 @@ class Menu
       // setting PWM properties
       const int freq = 5000;
       const int ledChannel = 0;
-      const int resolution = 8;
+      const int resolution = 12;
       
       ledcSetup(ledChannel, freq, resolution);
       // attach the channel to the GPIO to be controlled
@@ -1071,13 +1065,13 @@ void loop()
   if (!digitalRead(run_bt) and state_run == 0)
   {
     state_run = 1;
-    ledcWrite(ledChannel, 50);
+    menu.run_pwm(menu.calculator());
     Serial.println(state_run);
   }
   else if (digitalRead(run_bt) and state_run == 1)
   {
     state_run = 0;
-    ledcWrite(ledChannel, 0);
+    menu.run_pwm(0);
     Serial.println(state_run);
   }
 }
