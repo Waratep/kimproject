@@ -330,14 +330,19 @@ class Menu
     {
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("RATE : "); lcd.print(datas.get_rate()); lcd.print(" kg/r");
+      lcd.print("RATE : "); lcd.print(datas.getrate_sett()); lcd.print(" kg/r");
       lcd.setCursor(0, 1);
       lcd.print("SPEED: "); lcd.print(datas.get_speed()); lcd.print(" km/r");
       lcd.setCursor(0, 2);
-      lcd.print("WIDTH: "); lcd.print(datas.get_width()); lcd.print(" m");
+      lcd.print("WIDTH: "); lcd.print(datas.getwidth_sett()); lcd.print(" m");
       lcd.setCursor(0, 3);
       lcd.print("FEED : "); lcd.print(datas.get_feed()); lcd.print(" g/s");
       page = 1;
+      Serial.println(datas.getrate_sett());
+      Serial.println(datas.get_speed());
+      Serial.println(datas.getwidth_sett());
+      Serial.println(datas.get_feed());
+
       while (!rt.rotaryPress());
     }
     void main_page_1()
@@ -406,7 +411,8 @@ class Menu
       lcd.print(" g/s");
       lcd.setCursor(3, 3);
       lcd.print("NEXT ->");
-
+      
+      rt.count = 0;
       uint8_t cursur = rt.rotary();
       while (1)
       {
@@ -423,7 +429,6 @@ class Menu
           while (!rt.rotaryPress())
           {
             duty = rt.rotary() * 2;
-//            Serial.println(rt.rotary());
             duty += datas.getpwm_calibated_1();
             duty = duty < 0 ? 0 : duty;
             duty = duty > 100 ? 100 : duty;
@@ -444,7 +449,6 @@ class Menu
           while (!rt.rotaryPress())
           {
             feed = rt.rotary();
-//            Serial.println(rt.rotary());
             feed += datas.getfeed_calibated_1();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
@@ -488,7 +492,7 @@ class Menu
       lcd.print(" g/s");
       lcd.setCursor(3, 3);
       lcd.print("EXIT MENU");
-
+      rt.count = 0;
       uint8_t cursur = rt.rotary();
       while (1)
       {
@@ -505,7 +509,6 @@ class Menu
           while (!rt.rotaryPress())
           {
             duty = rt.rotary() * 2;
-//            Serial.println(rt.rotary());
             duty += datas.getpwm_calibated_2();
             duty = duty < 0 ? 0 : duty;
             duty = duty > 100 ? 100 : duty;
@@ -526,7 +529,6 @@ class Menu
           while (!rt.rotaryPress())
           {
             feed = rt.rotary();
-//            Serial.println(rt.rotary());
             feed += datas.getfeed_calibated_2();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
@@ -541,7 +543,7 @@ class Menu
             lcd.print(feed);
             lcd.print(" g/s");
           }
-          datas.setfeed_calibated_1(feed);
+          datas.setfeed_calibated_2(feed);
           rt.count = 0;
         }
         else if (cursur == 3 and rt.rotaryPress())
@@ -569,6 +571,7 @@ class Menu
       lcd.print(datas.getcal_sett());
       lcd.print(" g/s");
 
+      rt.count = 0;
       uint8_t cursur = rt.rotary();
       while (1)
       {
@@ -652,8 +655,15 @@ class Menu
       lcd.print("MENU: DRAIN");
       lcd.setCursor(3, 2);
       lcd.print("DRAING....");
-
-      while (!rt.rotaryPress());
+      rt.count = 0;
+      while (!rt.rotaryPress()){
+        Serial.println(rt.rotary() * 2);
+        if(rt.rotary() < 0) rt.count = 0;
+        if(rt.rotary() > 2*4095) rt.count = 2*4095;
+        run_pwm(rt.rotary() * 2);
+        delay(50);
+      }
+      run_pwm(0);
 
       subpage = 3;
     }
@@ -669,12 +679,13 @@ class Menu
 
       while (1)
       {
-        cursur = rt.rotary() * 2;
+        cursur = rt.rotary() * 1;
         cursur = cursur >= 8 ? 8 : cursur;
         cursur = cursur <= 1 ? 1 : cursur;
+        Serial.println(cursur);
         clearCursor();
 
-        if (cursur >= 7) break;
+        if (cursur >= 8) break;
         if (cursur >= 4)
         {
           cursur = cursur >= 7 ? 6 : cursur;
@@ -843,7 +854,7 @@ class Menu
 
       while (1)
       {
-        cursur = rt.rotary() * 2;
+        cursur = rt.rotary() * 1;
         cursur = cursur >= 8 ? 8 : cursur;
         cursur = cursur <= 1 ? 1 : cursur;
         clearCursor();
@@ -977,32 +988,55 @@ class Menu
         }
       }
     }
-    uint8_t calculator()
+    float calculator()
     {
       float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());  
       float offset = datas.getfeed_calibated_1() - (25 * slope);
 
+      Serial.println("slope");
+      Serial.println(datas.getfeed_calibated_2());
+      Serial.println(datas.getfeed_calibated_1());
+      Serial.println("offset");
+      Serial.println(datas.getfeed_calibated_1());
+      Serial.println("END");
+
       float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
-      uint8_t pwm = slope * feed - offset;
       
+      datas.set_feed(feed);
+      datas.setcal_sett(feed);
+      Serial.println("feed");
+      Serial.println(datas.get_rate());
+      Serial.println(datas.get_width());
+      Serial.println("offset");
+      Serial.println(datas.get_speed());
+      Serial.println("END");
+      
+      float pwm = slope * feed - offset;
+      
+      Serial.println("CAL");
+      Serial.println(slope);
+      Serial.println(feed);
+      Serial.println(offset);
+      Serial.println(pwm);
+      Serial.println("END");
+      if (pwm < 0) pwm = 0;
       return pwm;
     }
-    void run_pwm(uint8_t pwm)
+    void run_pwm(float pwm)
     {
       const int ledPin = 12;  
-      // setting PWM properties
       const int freq = 5000;
       const int ledChannel = 0;
       const int resolution = 12;
       
       ledcSetup(ledChannel, freq, resolution);
-      // attach the channel to the GPIO to be controlled
       ledcAttachPin(ledPin, ledChannel);
       pwm = pwm <= 0 ? 0:pwm;
-      pwm = pwm >= 255 ? 255:pwm;
-      ledcWrite(ledChannel, pwm);
-//      delay(1000);
-//      ledcWrite(ledChannel, 0);
+      pwm = pwm >= 100 ? 100:pwm;
+      uint16_t buffer_pwm = map(pwm,0,100,0,4095);
+      Serial.println(buffer_pwm);
+      ledcWrite(ledChannel, buffer_pwm);
+
     }
 };
 
@@ -1024,9 +1058,6 @@ void setup() {
                     NULL,             /* Parameter passed as input of the task */
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
-
-  ledcSetup(ledChannel, freq, resolution);
-  ledcAttachPin(pwm_output, ledChannel);
   
   menu.pages(0);
   menu.pages(1);
@@ -1066,6 +1097,7 @@ void loop()
   {
     state_run = 1;
     menu.run_pwm(menu.calculator());
+//    menu.run_pwm(50);
     Serial.println(state_run);
   }
   else if (digitalRead(run_bt) and state_run == 1)
