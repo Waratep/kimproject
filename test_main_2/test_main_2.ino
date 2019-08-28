@@ -326,7 +326,7 @@ class Menu {
       Serial.println(datas.get_speed());
       Serial.println(datas.getwidth_sett());
       Serial.println(datas.get_feed());
-      while (!cs.getEnter()){
+      while (!cs.getEnter()) {
         Serial.println("loop in page1");
       }
       Serial.println("page1");
@@ -1055,12 +1055,10 @@ void setup() {
     2,                /* Priority of the task. */
     NULL);            /* Task handle. */
 
-  Serial.println("page0");
   menu.pages(0);
-  Serial.println("page0");
+  delay(100);
   menu.pages(1);
-  Serial.println("to main");
-
+  delay(100);
 }
 
 void loop()
@@ -1148,6 +1146,7 @@ void taskTwo( void * parameter )
     char tmp = keypads.getKey();
     if (tmp) {
       getKeypad = tmp - '0';
+
       uint8_t tmpY = cs.getY();
       uint8_t tmpX = cs.getX();
       switch (getKeypad) {
@@ -1163,20 +1162,23 @@ void taskTwo( void * parameter )
         case 20: // ENTER
           cs.setEnter(1);
           break;
-        case -6: // LEFT
-          cs.setX(tmpX + 1);
+        case 250: // LEFT
+          cs.setX(tmpX - 1);
           break;
-        case -13: // RIGHT
-          cs.setY(tmpY + 1);
+        case 243: // RIGHT
+          cs.setX(tmpX + 1);
           break;
         default:
           break;
       }
+      Serial.print(cs.getY());
+      Serial.print("  ");
+      Serial.println(cs.getX());
+
     } else {
       cs.setEnter(0);
       cs.setSetting(0);
     }
-    //    Serial.println(cs.getSetting());
     vTaskDelay(100);
   }
   vTaskDelete( NULL );
