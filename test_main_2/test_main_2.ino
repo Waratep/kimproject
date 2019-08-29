@@ -455,91 +455,12 @@ class Menu {
         }
         else if (cursur == 3 and cs.getEnter())
         {
-          calibation_2();
           break;
         }
       }
       subpage = 1;
     }
-    uint8_t calibation_2()
-    {
-      //      lcd.clear();
-      //      lcd.setCursor(2, 0);
-      //      lcd.print("MENU:CALIBATION");
-      //      lcd.setCursor(1, 1);
-      //      lcd.print("%PWM    :");
-      //      lcd.print(datas.getpwm_calibated_2());
-      //      lcd.print("%");
-      //      lcd.setCursor(1, 2);
-      //      lcd.print("FEED@");
-      //      lcd.print(datas.getpwm_calibated_2());
-      //      lcd.setCursor(9, 2);
-      //      lcd.print(":");
-      //      lcd.print(datas.getfeed_calibated_2());
-      //      lcd.print(" g/s");
-      //      lcd.setCursor(3, 3);
-      //      lcd.print("EXIT MENU");
-      //      kp.count = 0;
-      //      uint8_t cursur = kp.Keypads();
-      //      while (1)
-      //      {
-      //        cursur = kp.Keypads() * 2;
-      //        cursur = cursur >= 3 ? 3 : cursur;
-      //        cursur = cursur <= 1 ? 1 : cursur;
-      //        clearCursor();
-      //        lcd.setCursor(19, cursur);
-      //        lcd.print("<");
-      //        if (cursur == 1 and kp.KeypadsPress())
-      //        {
-      //          uint8_t duty;
-      //          kp.count = 0;
-      //          while (!kp.KeypadsPress())
-      //          {
-      //            duty = kp.Keypads() * 2;
-      //            duty += datas.getpwm_calibated_2();
-      //            duty = duty < 0 ? 0 : duty;
-      //            duty = duty > 100 ? 100 : duty;
-      //            lcd.setCursor(10, 1);
-      //            lcd.print("    ");
-      //            lcd.setCursor(10, 1);
-      //            lcd.print(duty);
-      //            lcd.print("%");
-      //
-      //          }
-      //          datas.setpwm_calibated_2(duty);
-      //          kp.count = 0;
-      //        }
-      //        else if (cursur == 2 and kp.KeypadsPress())
-      //        {
-      //          float feed;
-      //          kp.count = 0;
-      //          while (!kp.KeypadsPress())
-      //          {
-      //            feed = kp.Keypads();
-      //            feed += datas.getfeed_calibated_2();
-      //            feed = feed < 0 ? 0 : feed;
-      //            feed = feed > 100 ? 100 : feed;
-      //            lcd.setCursor(1, 2);
-      //            lcd.print("FEED@");
-      //            lcd.print(datas.getpwm_calibated_2());
-      //            lcd.setCursor(9, 2);
-      //            lcd.print(":");
-      //            lcd.setCursor(10, 2);
-      //            lcd.print("          ");
-      //            lcd.setCursor(10, 2);
-      //            lcd.print(feed);
-      //            lcd.print(" g/s");
-      //          }
-      //          datas.setfeed_calibated_2(feed);
-      //          kp.count = 0;
-      //        }
-      //        else if (cursur == 3 and kp.KeypadsPress())
-      //        {
-      //          break;
-      //        }
-      //      }
-      //      subpage = 1;
-    }
+
     uint8_t settiing()
     {
       //      lcd.clear();
@@ -1064,48 +985,48 @@ void setup() {
 void loop()
 {
   menu.cursur = cs.getY();
-  if (cs.getY() > 6) {
+  if (cs.getY() >= 6) {
     cs.setY(6);
-  } else if (cs.getY() < 0) {
-    cs.setY(0);
   }
-
+  if (cs.getY() <= 0) {
+    cs.setY(1);
+  }
   menu.menucursor();
   menu.pagechange();
 
-  if (cs.getEnter())
-  {
-    switch (menu.cursur_select)
-    {
+  if (cs.getEnter()){
+    delay(10);
+    switch (menu.cursur_select){
       case 1: menu.calibation(); menu.pages(2); cs.setY(0); break;
       case 2: menu.settiing();   menu.pages(2); cs.setY(0); break;
       case 3: menu.drain();      menu.pages(2); cs.setY(0); break;
       case 4: menu.program();    menu.pages(2); cs.setY(0); break;
       case 5: menu.setDefult();  menu.pages(2); cs.setY(0); break;
       case 6: menu.save();       menu.pages(2); cs.setY(0); break;
-      default:                                                break;
+      default:                                              break;
     }
   }
 
-  if (!cs.getEnter())
-  {
-    while (!cs.getEnter());
-    menu.pages(1);
-    menu.pages(2);
-    cs.setY(0);
-  }
-  if (!digitalRead(run_bt) and state_run == 0)
-  {
-    state_run = 1;
-    menu.run_pwm(menu.calculator());
-    Serial.println(state_run);
-  }
-  else if (digitalRead(run_bt) and state_run == 1)
-  {
-    state_run = 0;
-    menu.run_pwm(0);
-    Serial.println(state_run);
-  }
+  //  if (!cs.getEnter())
+  //  {
+  //    while (!cs.getEnter());
+  //    menu.pages(1);
+  //    menu.pages(2);
+  //    cs.setY(0);
+  //  }
+  //  if (!digitalRead(run_bt) and state_run == 0)
+  //  {
+  //    state_run = 1;
+  //    menu.run_pwm(menu.calculator());
+  //    Serial.println(state_run);
+  //  }
+  //  else if (digitalRead(run_bt) and state_run == 1)
+  //  {
+  //    state_run = 0;
+  //    menu.run_pwm(0);
+  //    Serial.println(state_run);
+  //  }
+  delay(10);
 }
 
 void taskOne( void * parameter )
@@ -1146,15 +1067,18 @@ void taskTwo( void * parameter )
     char tmp = keypads.getKey();
     if (tmp) {
       getKeypad = tmp - '0';
-
+      Serial.println(getKeypad);
       uint8_t tmpY = cs.getY();
       uint8_t tmpX = cs.getX();
       switch (getKeypad) {
         case 18: //UP
-          cs.setY(tmpY + 1);
+          if(tmpY <= 0)
+            cs.setY(0);
+          else
+            cs.setY(tmpY - 1);          
           break;
         case 19: // DOWN
-          cs.setY(tmpY - 1);
+          cs.setY(tmpY + 1);
           break;
         case 17: // SETTING
           cs.setSetting(1);
@@ -1163,7 +1087,10 @@ void taskTwo( void * parameter )
           cs.setEnter(1);
           break;
         case 250: // LEFT
-          cs.setX(tmpX - 1);
+          if(tmpX <= 0)
+            cs.setX(0);
+          else
+            cs.setX(tmp - 1);
           break;
         case 243: // RIGHT
           cs.setX(tmpX + 1);
@@ -1179,7 +1106,7 @@ void taskTwo( void * parameter )
       cs.setEnter(0);
       cs.setSetting(0);
     }
-    vTaskDelay(100);
+    vTaskDelay(10);
   }
   vTaskDelete( NULL );
 }
