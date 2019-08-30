@@ -234,8 +234,7 @@ class Menu {
 
     float subpage;
     float cursur;
-    Menu()
-    {
+    Menu(){
       page          = 0;
       subpage       = 0;
       cursur        = 0;
@@ -243,13 +242,11 @@ class Menu {
       cursur_select = 0;
 
     }
-    void menucursor()
-    {
+    void menucursor(){
       clearCursor();
       updateCursor();
     }
-    void pages(uint8_t _page)
-    {
+    void pages(uint8_t _page){
       switch (_page)
       {
         case 0: page_0();                  break;
@@ -260,15 +257,13 @@ class Menu {
         default:                           break;
       }
     }
-    void clearCursor()
-    {
+    void clearCursor(){
       for (uint8_t i = 0 ; i < 4 ; i++) {
         lcd.setCursor(19, i);
         lcd.print(" ");
       }
     }
-    void updateCursor()
-    {
+    void updateCursor(){
       if ((uint8_t)cursur >= 7) cursur = 6;
       if ((uint8_t)cursur <= 1) cursur = 1;
 
@@ -297,8 +292,7 @@ class Menu {
         page = 4;
       }
     }
-    void page_0()
-    {
+    void page_0(){
       lcd.clear();
       lcd.setCursor(2, 1);
       lcd.print("RATE CONTROLLER");
@@ -310,8 +304,7 @@ class Menu {
       }
       Serial.println("page0");
     }
-    void page_1()
-    {
+    void page_1(){
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("RATE : "); lcd.print(datas.getrate_sett()); lcd.print(" kg/r");
@@ -332,8 +325,7 @@ class Menu {
       Serial.println("page1");
 
     }
-    void main_page_1()
-    {
+    void main_page_1(){
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -346,8 +338,7 @@ class Menu {
       page = 2;
 
     }
-    void main_page_2()
-    {
+    void main_page_2(){
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -359,8 +350,7 @@ class Menu {
       lcd.print("SAVE");
       page = 3;
     }
-    void main_page_3()
-    {
+    void main_page_3(){
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -368,8 +358,7 @@ class Menu {
       lcd.print("DISPLAY");
       page = 4;
     }
-    uint8_t pagechange()
-    {
+    uint8_t pagechange(){
       if (page != last_page)
       {
         pages(page);
@@ -380,8 +369,7 @@ class Menu {
         return 0;
       }
     }
-    uint8_t calibation()
-    {
+    uint8_t calibation(){
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU:CALIBATION");
@@ -491,123 +479,138 @@ class Menu {
       }
       subpage = 1;
     }
+    uint8_t settiing(){
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU: SETTING");
+      lcd.setCursor(1, 1);
+      lcd.print("RATE : ");
+      lcd.print(datas.getrate_sett());
+      lcd.print(" kg/r");
+      lcd.setCursor(1, 2);
+      lcd.print("WIDTH: ");
+      lcd.print(datas.getwidth_sett());
+      lcd.print(" m");
+      lcd.setCursor(1, 3);
+      lcd.print("CAL. : ");
+      lcd.print(datas.getcal_sett());
+      lcd.print(" g/s");
 
-    uint8_t settiing()
-    {
-      //      lcd.clear();
-      //      lcd.setCursor(2, 0);
-      //      lcd.print("MENU: SETTING");
-      //      lcd.setCursor(1, 1);
-      //      lcd.print("RATE : ");
-      //      lcd.print(datas.getrate_sett());
-      //      lcd.print(" kg/r");
-      //      lcd.setCursor(1, 2);
-      //      lcd.print("WIDTH: ");
-      //      lcd.print(datas.getwidth_sett());
-      //      lcd.print(" m");
-      //      lcd.setCursor(1, 3);
-      //      lcd.print("CAL. : ");
-      //      lcd.print(datas.getcal_sett());
-      //      lcd.print(" g/s");
-      //
-      //      kp.count = 0;
-      //      uint8_t cursur = kp.Keypads();
-      //      while (1)
-      //      {
-      //        cursur = kp.Keypads() * 2;
-      //        cursur = cursur >= 4 ? 4 : cursur;
-      //        cursur = cursur <= 1 ? 1 : cursur;
-      //        clearCursor();
-      //        lcd.setCursor(19, cursur);
-      //        lcd.print("<");
-      //        if (cursur >= 4) break;
-      //        if (cursur == 1 and kp.KeypadsPress())
-      //        {
-      //          float rate;
-      //          kp.count = 0;
-      //          while (!kp.KeypadsPress())
-      //          {
-      //            //            Serial.println(kp.Keypads());
-      //            rate = kp.Keypads();
-      //            rate += datas.getrate_sett();
-      //            rate = rate < 0 ? 0 : rate;
-      //            rate = rate > 100 ? 100 : rate;
-      //            lcd.setCursor(8, 1);
-      //            lcd.print("             ");
-      //            lcd.setCursor(8, 1);
-      //            lcd.print(rate);
-      //            lcd.print(" kg/r");
-      //
-      //          }
-      //          datas.setrate_sett(rate);
-      //          //          Serial.println(rate);
-      //          kp.count = 0;
-      //        }
-      //        else if (cursur == 2 and kp.KeypadsPress())
-      //        {
-      //          float width;
-      //          kp.count = 0;
-      //          while (!kp.KeypadsPress())
-      //          {
-      //            //            Serial.println(kp.Keypads());
-      //            width = kp.Keypads();
-      //            width += datas.getwidth_sett();
-      //            width = width < 0 ? 0 : width;
-      //            width = width > 100 ? 100 : width;
-      //            lcd.setCursor(8, 2);
-      //            lcd.print("             ");
-      //            lcd.setCursor(8, 2);
-      //            lcd.print(width);
-      //            lcd.print(" m");
-      //          }
-      //          datas.setwidth_sett(width);
-      //          //          Serial.println(width);
-      //          kp.count = 0;
-      //        }
-      //        else if (cursur == 3 and kp.KeypadsPress())
-      //        {
-      //          float cal;
-      //          kp.count = 0;
-      //          while (!kp.KeypadsPress())
-      //          {
-      //            //            Serial.println(kp.Keypads());
-      //            cal = kp.Keypads();
-      //            cal += datas.getcal_sett();
-      //            cal = cal < 0 ? 0 : cal;
-      //            cal = cal > 100 ? 100 : cal;
-      //            lcd.setCursor(8, 3);
-      //            lcd.print("             ");
-      //            lcd.setCursor(8, 3);
-      //            lcd.print(cal);
-      //            lcd.print(" g/s");
-      //          }
-      //          datas.setcal_sett(cal);
-      //          //          Serial.println(cal);
-      //          kp.count = 0;
-      //        }
-      //      }
+      uint8_t cursur = 1;
+      char tmp;
+      while (1)
+      {
+        delay(200);
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        cursur = cursur >= 4 ? 4 : cursur;
+        cursur = cursur <= 1 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+        if (cursur >= 4) break;
+        
+        if (cursur == 1 and tmp - '0' == 20){
+          float rate = 0 , val = 0, tmp = 0, counter = 0;
+          while (tmp - '0' != 20){
+            delay(200);
+            tmp = keypads.getKey();
+            if(tmp and tmp - '0' != 20){
+              if(counter == 0) val += (tmp - '0') * 1000;
+              if(counter == 1) val += (tmp - '0') * 100;
+              if(counter == 2) val += (tmp - '0') * 10;
+              if(counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }  
+            rate += datas.getrate_sett();
+            rate = rate < 0 ? 0 : rate;
+            rate = rate > 100 ? 100 : rate;
+            lcd.setCursor(8, 1);
+            lcd.print("             ");
+            lcd.setCursor(8, 1);
+            lcd.print(val / 10);
+            lcd.print(" kg/r");
+
+          }
+          rate = val / 10;
+          datas.setrate_sett(rate);
+        }else if (cursur == 2 and tmp - '0' == 20){
+          float rate = 0 , val = 0, tmp = 0, counter = 0 ,width = 0;
+          while (tmp - '0' != 20){
+            delay(200);
+            tmp = keypads.getKey();
+            if(tmp and tmp - '0' != 20){
+              if(counter == 0) val += (tmp - '0') * 1000;
+              if(counter == 1) val += (tmp - '0') * 100;
+              if(counter == 2) val += (tmp - '0') * 10;
+              if(counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }              
+            width += datas.getwidth_sett();
+            width = width < 0 ? 0 : width;
+            width = width > 100 ? 100 : width;
+            lcd.setCursor(8, 2);
+            lcd.print("             ");
+            lcd.setCursor(8, 2);
+            lcd.print(val / 10);
+            lcd.print(" m");
+          }
+          width = val / 10;
+          datas.setwidth_sett(width);
+        }else if (cursur == 3 and tmp - '0' == 20){
+          float rate = 0 , val = 0, tmp = 0, counter = 0 , cal;
+          while (tmp - '0' != 20){
+            delay(200);
+            tmp = keypads.getKey();
+            if(tmp and tmp - '0' != 20){
+              if(counter == 0) val += (tmp - '0') * 1000;
+              if(counter == 1) val += (tmp - '0') * 100;
+              if(counter == 2) val += (tmp - '0') * 10;
+              if(counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }       
+            cal += datas.getcal_sett();
+            cal = cal < 0 ? 0 : cal;
+            cal = cal > 100 ? 100 : cal;
+            lcd.setCursor(8, 3);
+            lcd.print("             ");
+            lcd.setCursor(8, 3);
+            lcd.print(val / 10);
+            lcd.print(" g/s");
+          }
+          cal = val / 10;
+          datas.setcal_sett(cal);
+      }
     }
-    uint8_t drain()
-    {
-      //      lcd.clear();
-      //      lcd.setCursor(2, 0);
-      //      lcd.print("MENU: DRAIN");
-      //      lcd.setCursor(3, 2);
-      //      lcd.print("DRAING....");
-      //      kp.count = 0;
-      //      while (!kp.KeypadsPress()) {
-      //        Serial.println(kp.Keypads() * 2);
-      //        if (kp.Keypads() < 0) kp.count = 0;
-      //        if (kp.Keypads() > 2 * 4095) kp.count = 2 * 4095;
-      //        run_pwm(kp.Keypads() * 2);
-      //        delay(50);
-      //      }
-      //      run_pwm(0);
-      //
-      //      subpage = 3;
+}
+    uint8_t drain(){
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU: DRAIN");
+      lcd.setCursor(3, 2);
+      lcd.print("DRAING....");
+      char tmp;
+      float val = 0 , counter = 0;
+      while (tmp - '0' != 20) {
+        tmp = keypads.getKey();
+        if(tmp and tmp - '0' != 20){
+          if(counter == 0) val += (tmp - '0') * 10;
+          if(counter == 1) val += (tmp - '0') * 1;
+          counter++;
+        }    
+        Serial.println(val);
+        run_pwm(map(val,0,100,0,4095));
+        delay(200);
+      }
+      run_pwm(0);
+  
+      subpage = 3;
     }
-    uint8_t program()
-    {
+    uint8_t program(){
       //      lcd.clear();
       //      lcd.setCursor(2, 0);
       //      lcd.print("MENU: PROGRAM");
@@ -758,8 +761,7 @@ class Menu {
       //        }
       //      }
     }
-    uint8_t setDefult()
-    {
+    uint8_t setDefult(){
       datas.setrate_sett(datas.getrate_defult());
       datas.setwidth_sett(datas.getwidth_defult());
       datas.setcal_sett(datas.getcal_defult());
@@ -778,11 +780,12 @@ class Menu {
       lcd.print("CAL. : ");
       lcd.print(datas.getcal_sett());
       lcd.print(" g/s");
-
-      while (!cs.getEnter());
+      char tmp;
+      while (tmp - '0' != 20){
+        tmp = keypads.getKey();
+      }
     }
-    uint8_t save()
-    {
+    uint8_t save(){
       //      lcd.clear();
       //      lcd.setCursor(2, 0);
       //      lcd.print("MENU: SAVE");
@@ -927,8 +930,7 @@ class Menu {
       //        }
       //      }
     }
-    float calculator()
-    {
+    float calculator(){
       //      float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());
       //      float offset = datas.getfeed_calibated_1() - (25 * slope);
       //
@@ -961,21 +963,19 @@ class Menu {
       //      if (pwm < 0) pwm = 0;
       //      return pwm;
     }
-    void run_pwm(float pwm)
-    {
-      //      const int ledPin = 12;
-      //      const int freq = 5000;
-      //      const int ledChannel = 0;
-      //      const int resolution = 12;
-      //
-      //      ledcSetup(ledChannel, freq, resolution);
-      //      ledcAttachPin(ledPin, ledChannel);
-      //      pwm = pwm <= 0 ? 0 : pwm;
-      //      pwm = pwm >= 100 ? 100 : pwm;
-      //      uint16_t buffer_pwm = map(pwm, 0, 100, 0, 4095);
-      //      Serial.println(buffer_pwm);
-      //      ledcWrite(ledChannel, buffer_pwm);
+    void run_pwm(float pwm){
+      const int ledPin = 12;
+      const int freq = 5000;
+      const int ledChannel = 0;
+      const int resolution = 12;
 
+      ledcSetup(ledChannel, freq, resolution);
+      ledcAttachPin(ledPin, ledChannel);
+      pwm = pwm <= 0 ? 0 : pwm;
+      pwm = pwm >= 100 ? 100 : pwm;
+      uint16_t buffer_pwm = map(pwm, 0, 100, 0, 4095);
+      Serial.println(buffer_pwm);
+      ledcWrite(ledChannel, buffer_pwm);
     }
 };
 
