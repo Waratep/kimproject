@@ -14,8 +14,8 @@ char hexaKeys[4][4] = {
   {'7', '8', '9', 'C'},
   {'*', '0', '#', 'D'}
 };
-byte rowPins[4] = {32, 33, 27, 14};
-byte colPins[4] = {2, 15, 13, 12};
+byte rowPins[4] = {32, 33, 4, 27};
+byte colPins[4] = {25, 26, 18, 19};
 uint8_t getKeypad = 0;
 Keypad keypads = Keypad( makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 
@@ -254,9 +254,9 @@ class Menu {
       {
         case 0: page_0();                  break;
         case 1: page_1();                  break;
-        case 2: main_page_1(); cursur = 1; break;
-        case 3: main_page_2(); cursur = 1; break;
-        case 4: main_page_3(); cursur = 1; break;
+        case 2: main_page_1();             break;
+        case 3: main_page_2();             break;
+        case 4: main_page_3();             break;
         default:                           break;
       }
     }
@@ -386,77 +386,108 @@ class Menu {
       lcd.setCursor(2, 0);
       lcd.print("MENU:CALIBATION");
       lcd.setCursor(1, 1);
-      lcd.print("%PWM    :");
-      lcd.print(datas.getpwm_calibated_1());
-      lcd.print("%");
-      lcd.setCursor(1, 2);
       lcd.print("FEED@");
-      lcd.print(datas.getpwm_calibated_1());
-      lcd.setCursor(9, 2);
+      lcd.setCursor(8, 1);
       lcd.print(":");
       lcd.print(datas.getfeed_calibated_1());
       lcd.print(" g/s");
-      lcd.setCursor(3, 3);
-      lcd.print("NEXT ->");
-
-      cs.setY(0);
-      uint8_t cursur = cs.getY();
+      lcd.setCursor(1, 2);
+      lcd.print("FEED@25");
+      lcd.setCursor(8, 2);
+      lcd.print(":");
+      lcd.print(datas.getfeed_calibated_2());
+      lcd.print(" g/s");
+      lcd.setCursor(1, 3);
+      lcd.print("EXIT -->");
+      
+      uint8_t cursur = 1;
+      char tmp;
       while (1)
       {
-        cursur = cs.getY();
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
         cursur = cursur >= 3 ? 3 : cursur;
-        cursur = cursur <= 1 ? 1 : cursur;
+        cursur = cursur <= 0 ? 1 : cursur;
         clearCursor();
         lcd.setCursor(19, cursur);
         lcd.print("<");
-        if (cursur == 1 and cs.getEnter())
-        {
-          uint8_t duty;
-          cs.setY(0);
-          while (!cs.getEnter())
-          {
-            duty = cs.getY();
-            duty += datas.getpwm_calibated_1();
-            duty = duty < 0 ? 0 : duty;
-            duty = duty > 100 ? 100 : duty;
-            lcd.setCursor(10, 1);
-            lcd.print("    ");
-            lcd.setCursor(10, 1);
-            lcd.print(duty);
-            lcd.print("%");
-
-          }
-          datas.setpwm_calibated_1(duty);
-          cs.setY(0);
-        }
-        else if (cursur == 2 and cs.getEnter())
+        if (cursur == 1 and tmp - '0' == 20)
         {
           float feed;
-          cs.setY(0);
-          while (!cs.getEnter())
+          char tmp = keypads.getKey();
+          float val = 0 , counter = 0;
+          while (tmp - '0' != 20)
           {
-            feed = cs.getY();
+            delay(200);
+            tmp = keypads.getKey();
+            if(tmp and tmp - '0' != 20){
+              if(counter == 0) val += (tmp - '0') * 1000;
+              if(counter == 1) val += (tmp - '0') * 100;
+              if(counter == 2) val += (tmp - '0') * 10;
+              if(counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }
+            Serial.print(val);
+            Serial.print("  ");
+            Serial.println(tmp - '0');
             feed += datas.getfeed_calibated_1();
+            feed = feed < 0 ? 0 : feed;
+            feed = feed > 100 ? 100 : feed;
+            lcd.setCursor(1, 1);
+            lcd.print("FEED@75");
+            lcd.setCursor(8, 1);
+            lcd.print(":");
+            lcd.setCursor(9, 1);
+            lcd.print("          ");
+            lcd.setCursor(9, 1);
+            lcd.print(val / 10);
+            lcd.print(" g/s");
+            feed = val / 10;
+
+          }
+          datas.setfeed_calibated_1(feed);
+        }
+        else if (cursur == 2 and tmp - '0' == 20)
+        {
+          float feed;
+          char tmp = keypads.getKey();
+          float val = 0 , counter = 0;
+          while (tmp - '0' != 20)
+          {
+            delay(200);
+            tmp = keypads.getKey();
+            if(tmp and tmp - '0' != 20){
+              if(counter == 0) val += (tmp - '0') * 1000;
+              if(counter == 1) val += (tmp - '0') * 100;
+              if(counter == 2) val += (tmp - '0') * 10;
+              if(counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }            
+            feed += datas.getfeed_calibated_2();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
             lcd.setCursor(1, 2);
             lcd.print("FEED@");
-            lcd.print(datas.getpwm_calibated_1());
-            lcd.setCursor(9, 2);
+            lcd.setCursor(8, 2);
             lcd.print(":");
-            lcd.setCursor(10, 2);
+            lcd.setCursor(9, 2);
             lcd.print("          ");
-            lcd.setCursor(10, 2);
-            lcd.print(feed);
+            lcd.setCursor(9, 2);
+            lcd.print(val / 10);
             lcd.print(" g/s");
+            feed = val / 10;
           }
-          datas.setfeed_calibated_1(feed);
-          cs.setY(0);
+          datas.setfeed_calibated_2(feed);
         }
-        else if (cursur == 3 and cs.getEnter())
+        else if (cursur == 3 and tmp - '0' == 20)
         {
           break;
         }
+        delay(100);
       }
       subpage = 1;
     }
@@ -953,50 +984,36 @@ Menu menu;
 void setup() {
 
   Serial.begin(115200);
-  Serial2.begin(38400);
+  //  Serial2.begin(38400);
 
   lcd.begin();
   EEPROM.begin(64);
 
   pinMode(run_bt, INPUT);
-
+  
   xTaskCreate(
-    taskOne,          /* Task function. */
-    "TaskOne",        /* String with name of task. */
-    40000,            /* Stack size in bytes. */
+    taskTwo,          /* Task function. */
+    "TaskTwo",        /* String with name of task. */
+    20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
     1,                /* Priority of the task. */
     NULL);            /* Task handle. */
 
-  xTaskCreate(
-    taskTwo,          /* Task function. */
-    "TaskTwo",        /* String with name of task. */
-    40000,            /* Stack size in bytes. */
-    NULL,             /* Parameter passed as input of the task */
-    2,                /* Priority of the task. */
-    NULL);            /* Task handle. */
-
-  menu.pages(0);
-  delay(100);
-  menu.pages(1);
-  delay(100);
 }
 
-void loop()
-{
-  menu.cursur = cs.getY();
-  if (cs.getY() >= 6) {
-    cs.setY(6);
-  }
-  if (cs.getY() <= 0) {
-    cs.setY(1);
+void loop() {
+  
+  char tmp = keypads.getKey();
+  if (tmp - '0' == 18) {
+    menu.cursur--;
+  } else if (tmp - '0' == 19) {
+    menu.cursur++;
   }
   menu.menucursor();
   menu.pagechange();
 
-  if (cs.getEnter()){
-    delay(10);
-    switch (menu.cursur_select){
+  if (tmp - '0' == 20) {
+    switch (menu.cursur_select) {
       case 1: menu.calibation(); menu.pages(2); cs.setY(0); break;
       case 2: menu.settiing();   menu.pages(2); cs.setY(0); break;
       case 3: menu.drain();      menu.pages(2); cs.setY(0); break;
@@ -1006,31 +1023,11 @@ void loop()
       default:                                              break;
     }
   }
-
-  //  if (!cs.getEnter())
-  //  {
-  //    while (!cs.getEnter());
-  //    menu.pages(1);
-  //    menu.pages(2);
-  //    cs.setY(0);
-  //  }
-  //  if (!digitalRead(run_bt) and state_run == 0)
-  //  {
-  //    state_run = 1;
-  //    menu.run_pwm(menu.calculator());
-  //    Serial.println(state_run);
-  //  }
-  //  else if (digitalRead(run_bt) and state_run == 1)
-  //  {
-  //    state_run = 0;
-  //    menu.run_pwm(0);
-  //    Serial.println(state_run);
-  //  }
-  delay(10);
+  delay(200);
 }
 
-void taskOne( void * parameter )
-{
+
+void taskTwo( void * parameter ) {
   while (1) {
     if (Serial2.available()) {
       String s = Serial2.readStringUntil('\n');
@@ -1056,57 +1053,7 @@ void taskOne( void * parameter )
         }
       }
     }
-    vTaskDelay(100);
-  }
-  vTaskDelete( NULL );
-}
-
-void taskTwo( void * parameter )
-{
-  while (1) {
-    char tmp = keypads.getKey();
-    if (tmp) {
-      getKeypad = tmp - '0';
-      Serial.println(getKeypad);
-      uint8_t tmpY = cs.getY();
-      uint8_t tmpX = cs.getX();
-      switch (getKeypad) {
-        case 18: //UP
-          if(tmpY <= 0)
-            cs.setY(0);
-          else
-            cs.setY(tmpY - 1);          
-          break;
-        case 19: // DOWN
-          cs.setY(tmpY + 1);
-          break;
-        case 17: // SETTING
-          cs.setSetting(1);
-          break;
-        case 20: // ENTER
-          cs.setEnter(1);
-          break;
-        case 250: // LEFT
-          if(tmpX <= 0)
-            cs.setX(0);
-          else
-            cs.setX(tmp - 1);
-          break;
-        case 243: // RIGHT
-          cs.setX(tmpX + 1);
-          break;
-        default:
-          break;
-      }
-      Serial.print(cs.getY());
-      Serial.print("  ");
-      Serial.println(cs.getX());
-
-    } else {
-      cs.setEnter(0);
-      cs.setSetting(0);
-    }
-    vTaskDelay(10);
+    vTaskDelay(1000);
   }
   vTaskDelete( NULL );
 }
