@@ -5,8 +5,13 @@
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 #define run_bt 34
+#define red 23
+#define blue 5
+#define run_bt 34
+
 uint8_t state_run = 0;
 String gpsHour;
+uint8_t gpsActive = 0;
 #define frate 200
 
 char hexaKeys[4][4] = {
@@ -19,45 +24,6 @@ byte rowPins[4] = {32, 33, 4, 27};
 byte colPins[4] = {25, 26, 18, 19};
 uint8_t getKeypad = 0;
 Keypad keypads = Keypad( makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
-
-
-class Cursurs {
-  private:
-    uint8_t cursorX;
-    uint8_t cursorY;
-    uint8_t enter;
-    uint8_t setting;
-  public:
-    Cursurs() {
-      cursorX = cursorY = enter = setting = 0 ;
-    }
-    uint8_t getX() {
-      return cursorX;
-    }
-    uint8_t getY() {
-      return cursorY;
-    }
-    uint8_t getEnter() {
-      return enter;
-    }
-    uint8_t getSetting() {
-      return setting;
-    }
-    void setX(uint8_t x) {
-      cursorX = x;
-    }
-    void setY(uint8_t y) {
-      cursorY = y;
-    }
-    void setEnter(uint8_t _enter) {
-      enter = _enter;
-    }
-    void setSetting(uint8_t sett) {
-      setting = sett;
-    }
-};
-
-Cursurs cs;
 
 class Data {
   private:
@@ -235,7 +201,7 @@ class Menu {
 
     float subpage;
     float cursur;
-    Menu(){
+    Menu() {
       page          = 0;
       subpage       = 0;
       cursur        = 0;
@@ -243,11 +209,11 @@ class Menu {
       cursur_select = 0;
 
     }
-    void menucursor(){
+    void menucursor() {
       clearCursor();
       updateCursor();
     }
-    void pages(uint8_t _page){
+    void pages(uint8_t _page) {
       switch (_page)
       {
         case 0: page_0();                  break;
@@ -258,13 +224,13 @@ class Menu {
         default:                           break;
       }
     }
-    void clearCursor(){
+    void clearCursor() {
       for (uint8_t i = 0 ; i < 4 ; i++) {
         lcd.setCursor(19, i);
         lcd.print(" ");
       }
     }
-    void updateCursor(){
+    void updateCursor() {
       if ((uint8_t)cursur >= 7) cursur = 6;
       if ((uint8_t)cursur <= 1) cursur = 1;
 
@@ -293,40 +259,14 @@ class Menu {
         page = 4;
       }
     }
-    void page_0(){
-      lcd.clear();
-      lcd.setCursor(2, 1);
-      lcd.print("RATE CONTROLLER");
-      lcd.setCursor(4, 2);
-      lcd.print("KMITL  RC-1");
-      page = 0;
-      while (!cs.getEnter()) {
-        Serial.println("loop in page0");
-      }
-      Serial.println("page0");
-    }
-    void page_1(){
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("RATE : "); lcd.print(datas.getrate_sett()); lcd.print(" kg/r");
-      lcd.setCursor(0, 1);
-      lcd.print("SPEED: "); lcd.print(datas.get_speed()); lcd.print(" km/r");
-      lcd.setCursor(0, 2);
-      lcd.print("WIDTH: "); lcd.print(datas.getwidth_sett()); lcd.print(" m");
-      lcd.setCursor(0, 3);
-      lcd.print("FEED : "); lcd.print(datas.get_feed()); lcd.print(" g/s");
-      page = 1;
-      Serial.println(datas.getrate_sett());
-      Serial.println(datas.get_speed());
-      Serial.println(datas.getwidth_sett());
-      Serial.println(datas.get_feed());
-      while (!cs.getEnter()) {
-        Serial.println("loop in page1");
-      }
-      Serial.println("page1");
+    void page_0() {
 
     }
-    void main_page_1(){
+    void page_1() {
+
+
+    }
+    void main_page_1() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -339,7 +279,7 @@ class Menu {
       page = 2;
 
     }
-    void main_page_2(){
+    void main_page_2() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -351,7 +291,7 @@ class Menu {
       lcd.print("SAVE");
       page = 3;
     }
-    void main_page_3(){
+    void main_page_3() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
@@ -359,7 +299,7 @@ class Menu {
       lcd.print("DISPLAY");
       page = 4;
     }
-    uint8_t pagechange(){
+    uint8_t pagechange() {
       if (page != last_page)
       {
         pages(page);
@@ -370,7 +310,7 @@ class Menu {
         return 0;
       }
     }
-    uint8_t calibation(){
+    uint8_t calibation() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU:CALIBATION");
@@ -388,10 +328,10 @@ class Menu {
       lcd.print(" g/s");
       lcd.setCursor(1, 3);
       lcd.print("EXIT -->");
-      
+
       uint8_t cursur = 1;
       char tmp;
-      while (1){
+      while (1) {
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -412,11 +352,11 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
-            if(tmp and tmp - '0' != 20){
-              if(counter == 0) val += (tmp - '0') * 1000;
-              if(counter == 1) val += (tmp - '0') * 100;
-              if(counter == 2) val += (tmp - '0') * 10;
-              if(counter == 3) val += (tmp - '0') * 1;
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
               counter++;
             }
             Serial.print(val);
@@ -448,13 +388,13 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
-            if(tmp and tmp - '0' != 20){
-              if(counter == 0) val += (tmp - '0') * 1000;
-              if(counter == 1) val += (tmp - '0') * 100;
-              if(counter == 2) val += (tmp - '0') * 10;
-              if(counter == 3) val += (tmp - '0') * 1;
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
               counter++;
-            }            
+            }
             feed += datas.getfeed_calibated_2();
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
@@ -479,7 +419,7 @@ class Menu {
       }
       subpage = 1;
     }
-    uint8_t settiing(){
+    uint8_t settiing() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU: SETTING");
@@ -513,19 +453,19 @@ class Menu {
         lcd.setCursor(19, cursur);
         lcd.print("<");
         if (cursur >= 4) break;
-        
-        if (cursur == 1 and tmp - '0' == 20){
+
+        if (cursur == 1 and tmp - '0' == 20) {
           float rate = 0 , val = 0, tmp = 0, counter = 0;
-          while (tmp - '0' != 20){
+          while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
-            if(tmp and tmp - '0' != 20){
-              if(counter == 0) val += (tmp - '0') * 1000;
-              if(counter == 1) val += (tmp - '0') * 100;
-              if(counter == 2) val += (tmp - '0') * 10;
-              if(counter == 3) val += (tmp - '0') * 1;
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
               counter++;
-            }  
+            }
             rate += datas.getrate_sett();
             rate = rate < 0 ? 0 : rate;
             rate = rate > 100 ? 100 : rate;
@@ -538,18 +478,18 @@ class Menu {
           }
           rate = val / 10;
           datas.setrate_sett(rate);
-        }else if (cursur == 2 and tmp - '0' == 20){
-          float rate = 0 , val = 0, tmp = 0, counter = 0 ,width = 0;
-          while (tmp - '0' != 20){
+        } else if (cursur == 2 and tmp - '0' == 20) {
+          float rate = 0 , val = 0, tmp = 0, counter = 0 , width = 0;
+          while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
-            if(tmp and tmp - '0' != 20){
-              if(counter == 0) val += (tmp - '0') * 1000;
-              if(counter == 1) val += (tmp - '0') * 100;
-              if(counter == 2) val += (tmp - '0') * 10;
-              if(counter == 3) val += (tmp - '0') * 1;
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
               counter++;
-            }              
+            }
             width += datas.getwidth_sett();
             width = width < 0 ? 0 : width;
             width = width > 100 ? 100 : width;
@@ -561,18 +501,18 @@ class Menu {
           }
           width = val / 10;
           datas.setwidth_sett(width);
-        }else if (cursur == 3 and tmp - '0' == 20){
+        } else if (cursur == 3 and tmp - '0' == 20) {
           float rate = 0 , val = 0, tmp = 0, counter = 0 , cal;
-          while (tmp - '0' != 20){
+          while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
-            if(tmp and tmp - '0' != 20){
-              if(counter == 0) val += (tmp - '0') * 1000;
-              if(counter == 1) val += (tmp - '0') * 100;
-              if(counter == 2) val += (tmp - '0') * 10;
-              if(counter == 3) val += (tmp - '0') * 1;
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
               counter++;
-            }       
+            }
             cal += datas.getcal_sett();
             cal = cal < 0 ? 0 : cal;
             cal = cal > 100 ? 100 : cal;
@@ -584,10 +524,10 @@ class Menu {
           }
           cal = val / 10;
           datas.setcal_sett(cal);
+        }
       }
     }
-}
-    uint8_t drain(){
+    uint8_t drain() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU: DRAIN");
@@ -597,20 +537,20 @@ class Menu {
       float val = 0 , counter = 0;
       while (tmp - '0' != 20) {
         tmp = keypads.getKey();
-        if(tmp and tmp - '0' != 20){
-          if(counter == 0) val += (tmp - '0') * 10;
-          if(counter == 1) val += (tmp - '0') * 1;
+        if (tmp and tmp - '0' != 20) {
+          if (counter == 0) val += (tmp - '0') * 10;
+          if (counter == 1) val += (tmp - '0') * 1;
           counter++;
-        }    
+        }
         Serial.println(val);
-        run_pwm(map(val,0,100,0,4095));
+        run_pwm(map(val, 0, 100, 0, 4095));
         delay(frate);
       }
       run_pwm(0);
-  
+
       subpage = 3;
     }
-    uint8_t program(){
+    uint8_t program() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU: PROGRAM");
@@ -631,16 +571,16 @@ class Menu {
         clearCursor();
 
         if (cursur >= 8) break;
-        if (cursur >= 4){
+        if (cursur >= 4) {
           cursur = cursur >= 7 ? 6 : cursur;
           lcd.setCursor(19, cursur - 3);
         }
-        else{
+        else {
           lcd.setCursor(19, cursur);
         }
         lcd.print("<");
 
-        if (cursur >= 4 and state != 2){
+        if (cursur >= 4 and state != 2) {
           lcd.setCursor(0, 1);
           lcd.print("PROGRAM:  04");
           lcd.setCursor(0, 2);
@@ -649,7 +589,7 @@ class Menu {
           lcd.print("PROGRAM:  06");
           state = 2;
         }
-        else if (cursur <= 3 and state != 1){
+        else if (cursur <= 3 and state != 1) {
           lcd.setCursor(0, 1);
           lcd.print("PROGRAM:  01");
           lcd.setCursor(0, 2);
@@ -658,7 +598,7 @@ class Menu {
           lcd.print("PROGRAM:  03");
           state = 1;
         }
-        if (cursur == 1 and tmp - '0' == 20){
+        if (cursur == 1 and tmp - '0' == 20) {
           float x = (EEPROM.read(1));
           float y = (EEPROM.read(3));
           float z = (EEPROM.read(5));
@@ -672,7 +612,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if (cursur == 2 and tmp - '0' == 20){
+        else if (cursur == 2 and tmp - '0' == 20) {
           float x = (EEPROM.read(7));
           float y = (EEPROM.read(9));
           float z = (EEPROM.read(11));
@@ -686,7 +626,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if (cursur == 3 and tmp - '0' == 20){
+        else if (cursur == 3 and tmp - '0' == 20) {
           float x = (EEPROM.read(13));
           float y = (EEPROM.read(15));
           float z = (EEPROM.read(17));
@@ -700,7 +640,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if (cursur == 4 and tmp - '0' == 20){
+        else if (cursur == 4 and tmp - '0' == 20) {
           float x = (EEPROM.read(19));
           float y = (EEPROM.read(21));
           float z = (EEPROM.read(23));
@@ -714,7 +654,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if (cursur == 5 and tmp - '0' == 20){
+        else if (cursur == 5 and tmp - '0' == 20) {
           float x = (EEPROM.read(25));
           float y = (EEPROM.read(27));
           float z = (EEPROM.read(29));
@@ -728,7 +668,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if (cursur == 6 and tmp - '0' == 20){
+        else if (cursur == 6 and tmp - '0' == 20) {
           float x = (EEPROM.read(31));
           float y = (EEPROM.read(33));
           float z = (EEPROM.read(35));
@@ -745,7 +685,7 @@ class Menu {
         delay(frate);
       }
     }
-    uint8_t setDefult(){
+    uint8_t setDefult() {
       datas.setrate_sett(datas.getrate_defult());
       datas.setwidth_sett(datas.getwidth_defult());
       datas.setcal_sett(datas.getcal_defult());
@@ -765,11 +705,11 @@ class Menu {
       lcd.print(datas.getcal_sett());
       lcd.print(" g/s");
       char tmp;
-      while (tmp - '0' != 20){
+      while (tmp - '0' != 20) {
         tmp = keypads.getKey();
       }
     }
-    uint8_t save(){
+    uint8_t save() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU: SAVE");
@@ -791,16 +731,16 @@ class Menu {
         clearCursor();
 
         if (cursur >= 7) break;
-        if (cursur >= 4){
+        if (cursur >= 4) {
           cursur = cursur >= 7 ? 6 : cursur;
           lcd.setCursor(19, cursur - 3);
         }
-        else{
+        else {
           lcd.setCursor(19, cursur);
         }
         lcd.print("<");
 
-        if (cursur >= 4 and state != 2){
+        if (cursur >= 4 and state != 2) {
           lcd.setCursor(0, 1);
           lcd.print("PROGRAM:  04");
           lcd.setCursor(0, 2);
@@ -809,7 +749,7 @@ class Menu {
           lcd.print("PROGRAM:  06");
           state = 2;
         }
-        else if (cursur <= 3 and state != 1){
+        else if (cursur <= 3 and state != 1) {
           lcd.setCursor(0, 1);
           lcd.print("PROGRAM:  01");
           lcd.setCursor(0, 2);
@@ -818,7 +758,7 @@ class Menu {
           lcd.print("PROGRAM:  03");
           state = 1;
         }
-        if (cursur == 1 and tmp - '0' == 20){
+        if (cursur == 1 and tmp - '0' == 20) {
           EEPROM.write(0 , (uint8_t)datas.getrate_sett());
           EEPROM.write(2 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(4 , (uint8_t)datas.getcal_sett());
@@ -830,7 +770,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
-        else if (cursur == 2 and tmp - '0' == 20){
+        else if (cursur == 2 and tmp - '0' == 20) {
 
           EEPROM.write(6 , (uint8_t)datas.getrate_sett());
           EEPROM.write(8 , (uint8_t)datas.getwidth_sett());
@@ -843,7 +783,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
-        else if (cursur == 3 and tmp - '0' == 20){
+        else if (cursur == 3 and tmp - '0' == 20) {
           EEPROM.write(12 , (uint8_t)datas.getrate_sett());
           EEPROM.write(14 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(16 , (uint8_t)datas.getcal_sett());
@@ -855,7 +795,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
-        else if (cursur == 4 and tmp - '0' == 20){
+        else if (cursur == 4 and tmp - '0' == 20) {
           EEPROM.write(18 , (uint8_t)datas.getrate_sett());
           EEPROM.write(20 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(22 , (uint8_t)datas.getcal_sett());
@@ -867,7 +807,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
-        else if (cursur == 5 and tmp - '0' == 20){
+        else if (cursur == 5 and tmp - '0' == 20) {
           EEPROM.write(24 , (uint8_t)datas.getrate_sett());
           EEPROM.write(26 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(28 , (uint8_t)datas.getcal_sett());
@@ -879,7 +819,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
-        else if (cursur == 6 and tmp - '0' == 20){
+        else if (cursur == 6 and tmp - '0' == 20) {
           EEPROM.write(30 , (uint8_t)datas.getrate_sett());
           EEPROM.write(32 , (uint8_t)datas.getwidth_sett());
           EEPROM.write(34 , (uint8_t)datas.getcal_sett());
@@ -893,7 +833,7 @@ class Menu {
         }
       }
     }
-    float calculator(){
+    float calculator() {
       float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());
       float offset = datas.getfeed_calibated_1() - (25 * slope);
 
@@ -926,7 +866,7 @@ class Menu {
       if (pwm < 0) pwm = 0;
       return pwm;
     }
-    void run_pwm(float pwm){
+    void run_pwm(float pwm) {
       const int ledPin = 12;
       const int freq = 5000;
       const int ledChannel = 0;
@@ -947,13 +887,15 @@ Menu menu;
 void setup() {
 
   Serial.begin(115200);
-  //  Serial2.begin(38400);
+  Serial2.begin(38400);
 
   lcd.begin();
   EEPROM.begin(64);
 
   pinMode(run_bt, INPUT);
-  
+  pinMode(red, OUTPUT);
+  pinMode(blue, OUTPUT);
+
   xTaskCreate(
     taskTwo,          /* Task function. */
     "TaskTwo",        /* String with name of task. */
@@ -965,7 +907,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   char tmp = keypads.getKey();
   if (tmp - '0' == 18) {
     menu.cursur--;
@@ -977,13 +919,13 @@ void loop() {
 
   if (tmp - '0' == 20) {
     switch (menu.cursur_select) {
-      case 1: menu.calibation(); menu.pages(2); cs.setY(0); break;
-      case 2: menu.settiing();   menu.pages(2); cs.setY(0); break;
-      case 3: menu.drain();      menu.pages(2); cs.setY(0); break;
-      case 4: menu.program();    menu.pages(2); cs.setY(0); break;
-      case 5: menu.setDefult();  menu.pages(2); cs.setY(0); break;
-      case 6: menu.save();       menu.pages(2); cs.setY(0); break;
-      default:                                              break;
+      case 1: menu.calibation(); menu.pages(2);  break;
+      case 2: menu.settiing();   menu.pages(2);  break;
+      case 3: menu.drain();      menu.pages(2);  break;
+      case 4: menu.program();    menu.pages(2);  break;
+      case 5: menu.setDefult();  menu.pages(2);  break;
+      case 6: menu.save();       menu.pages(2);  break;
+      default:                                   break;
     }
   }
   delay(frate);
@@ -1009,11 +951,21 @@ void taskTwo( void * parameter ) {
             gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
             //            Serial.print("GPS Hour: ");
             //            Serial.println(gpsHour);
+            gpsActive = 1;
           }
           else {
             //            Serial.println(s);
+            gpsActive = 0;
+            
           }
         }
+      }
+      if (gpsActive){
+        digitalWrite(blue,LOW);
+        digitalWrite(red,HIGH);
+      }else{
+        digitalWrite(blue,HIGH);
+        digitalWrite(red,LOW);        
       }
     }
     vTaskDelay(1000);
