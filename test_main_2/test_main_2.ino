@@ -315,13 +315,13 @@ class Menu {
       lcd.setCursor(2, 0);
       lcd.print("MENU:CALIBATION");
       lcd.setCursor(1, 1);
-      lcd.print("FEED@");
+      lcd.print("FEED@25");
       lcd.setCursor(8, 1);
       lcd.print(":");
       lcd.print(datas.getfeed_calibated_1());
       lcd.print(" g/s");
       lcd.setCursor(1, 2);
-      lcd.print("FEED@25");
+      lcd.print("FEED@75");
       lcd.setCursor(8, 2);
       lcd.print(":");
       lcd.print(datas.getfeed_calibated_2());
@@ -366,7 +366,7 @@ class Menu {
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
             lcd.setCursor(1, 1);
-            lcd.print("FEED@75");
+            lcd.print("FEED@25");
             lcd.setCursor(8, 1);
             lcd.print(":");
             lcd.setCursor(9, 1);
@@ -399,7 +399,7 @@ class Menu {
             feed = feed < 0 ? 0 : feed;
             feed = feed > 100 ? 100 : feed;
             lcd.setCursor(1, 2);
-            lcd.print("FEED@");
+            lcd.print("FEED@75");
             lcd.setCursor(8, 2);
             lcd.print(":");
             lcd.setCursor(9, 2);
@@ -927,6 +927,19 @@ void loop() {
       case 6: menu.save();       menu.pages(2);  break;
       default:                                   break;
     }
+  }
+
+  if (!digitalRead(run_bt) and state_run == 0)
+  {
+    state_run = 1;
+    menu.run_pwm(menu.calculator());
+    Serial.println(state_run);
+  }
+  else if (digitalRead(run_bt) and state_run == 1)
+  {
+    state_run = 0;
+    menu.run_pwm(0);
+    Serial.println(state_run);
   }
   delay(frate);
 }
