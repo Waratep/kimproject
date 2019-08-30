@@ -7,6 +7,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 #define run_bt 34
 uint8_t state_run = 0;
 String gpsHour;
+#define frate 200
 
 char hexaKeys[4][4] = {
   {'1', '2', '3', 'A'},
@@ -390,8 +391,7 @@ class Menu {
       
       uint8_t cursur = 1;
       char tmp;
-      while (1)
-      {
+      while (1){
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -410,7 +410,7 @@ class Menu {
           float val = 0 , counter = 0;
           while (tmp - '0' != 20)
           {
-            delay(200);
+            delay(frate);
             tmp = keypads.getKey();
             if(tmp and tmp - '0' != 20){
               if(counter == 0) val += (tmp - '0') * 1000;
@@ -446,7 +446,7 @@ class Menu {
           float val = 0 , counter = 0;
           while (tmp - '0' != 20)
           {
-            delay(200);
+            delay(frate);
             tmp = keypads.getKey();
             if(tmp and tmp - '0' != 20){
               if(counter == 0) val += (tmp - '0') * 1000;
@@ -475,7 +475,7 @@ class Menu {
         {
           break;
         }
-        delay(100);
+        delay(frate);
       }
       subpage = 1;
     }
@@ -500,7 +500,7 @@ class Menu {
       char tmp;
       while (1)
       {
-        delay(200);
+        delay(frate);
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -517,7 +517,7 @@ class Menu {
         if (cursur == 1 and tmp - '0' == 20){
           float rate = 0 , val = 0, tmp = 0, counter = 0;
           while (tmp - '0' != 20){
-            delay(200);
+            delay(frate);
             tmp = keypads.getKey();
             if(tmp and tmp - '0' != 20){
               if(counter == 0) val += (tmp - '0') * 1000;
@@ -541,7 +541,7 @@ class Menu {
         }else if (cursur == 2 and tmp - '0' == 20){
           float rate = 0 , val = 0, tmp = 0, counter = 0 ,width = 0;
           while (tmp - '0' != 20){
-            delay(200);
+            delay(frate);
             tmp = keypads.getKey();
             if(tmp and tmp - '0' != 20){
               if(counter == 0) val += (tmp - '0') * 1000;
@@ -564,7 +564,7 @@ class Menu {
         }else if (cursur == 3 and tmp - '0' == 20){
           float rate = 0 , val = 0, tmp = 0, counter = 0 , cal;
           while (tmp - '0' != 20){
-            delay(200);
+            delay(frate);
             tmp = keypads.getKey();
             if(tmp and tmp - '0' != 20){
               if(counter == 0) val += (tmp - '0') * 1000;
@@ -604,162 +604,146 @@ class Menu {
         }    
         Serial.println(val);
         run_pwm(map(val,0,100,0,4095));
-        delay(200);
+        delay(frate);
       }
       run_pwm(0);
   
       subpage = 3;
     }
     uint8_t program(){
-      //      lcd.clear();
-      //      lcd.setCursor(2, 0);
-      //      lcd.print("MENU: PROGRAM");
-      //
-      //      kp.count = 0;
-      //      uint8_t cursur = kp.Keypads();
-      //      uint8_t state = 0;
-      //
-      //      while (1)
-      //      {
-      //        cursur = kp.Keypads() * 1;
-      //        cursur = cursur >= 8 ? 8 : cursur;
-      //        cursur = cursur <= 1 ? 1 : cursur;
-      //        Serial.println(cursur);
-      //        clearCursor();
-      //
-      //        if (cursur >= 8) break;
-      //        if (cursur >= 4)
-      //        {
-      //          cursur = cursur >= 7 ? 6 : cursur;
-      //          lcd.setCursor(19, cursur - 3);
-      //        }
-      //        else
-      //        {
-      //          lcd.setCursor(19, cursur);
-      //        }
-      //
-      //        lcd.print("<");
-      //
-      //        if (cursur >= 4 and state != 2)
-      //        {
-      //          kp.count = 4;
-      //          lcd.setCursor(0, 1);
-      //          lcd.print("PROGRAM:  04");
-      //          lcd.setCursor(0, 2);
-      //          lcd.print("PROGRAM:  05");
-      //          lcd.setCursor(0, 3);
-      //          lcd.print("PROGRAM:  06");
-      //          state = 2;
-      //        }
-      //        else if (cursur <= 3 and state != 1)
-      //        {
-      //          kp.count = 0;
-      //          lcd.setCursor(0, 1);
-      //          lcd.print("PROGRAM:  01");
-      //          lcd.setCursor(0, 2);
-      //          lcd.print("PROGRAM:  02");
-      //          lcd.setCursor(0, 3);
-      //          lcd.print("PROGRAM:  03");
-      //          state = 1;
-      //        }
-      //        if (cursur == 1 and kp.KeypadsPress())
-      //        {
-      //
-      //          float x = (EEPROM.read(1));
-      //          float y = (EEPROM.read(3));
-      //          float z = (EEPROM.read(5));
-      //
-      //          float _x = EEPROM.read(0);
-      //          float _y = EEPROM.read(2);
-      //          float _z = EEPROM.read(4);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 2 and kp.KeypadsPress())
-      //        {
-      //          float x = (EEPROM.read(7));
-      //          float y = (EEPROM.read(9));
-      //          float z = (EEPROM.read(11));
-      //
-      //          float _x = EEPROM.read(6);
-      //          float _y = EEPROM.read(8);
-      //          float _z = EEPROM.read(10);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 3 and kp.KeypadsPress())
-      //        {
-      //          float x = (EEPROM.read(13));
-      //          float y = (EEPROM.read(15));
-      //          float z = (EEPROM.read(17));
-      //
-      //          float _x = EEPROM.read(12);
-      //          float _y = EEPROM.read(14);
-      //          float _z = EEPROM.read(16);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 4 and kp.KeypadsPress())
-      //        {
-      //          float x = (EEPROM.read(19));
-      //          float y = (EEPROM.read(21));
-      //          float z = (EEPROM.read(23));
-      //
-      //          float _x = EEPROM.read(18);
-      //          float _y = EEPROM.read(20);
-      //          float _z = EEPROM.read(22);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 5 and kp.KeypadsPress())
-      //        {
-      //          float x = (EEPROM.read(25));
-      //          float y = (EEPROM.read(27));
-      //          float z = (EEPROM.read(29));
-      //
-      //          float _x = EEPROM.read(24);
-      //          float _y = EEPROM.read(26);
-      //          float _z = EEPROM.read(28);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 6 and kp.KeypadsPress())
-      //        {
-      //          float x = (EEPROM.read(31));
-      //          float y = (EEPROM.read(33));
-      //          float z = (EEPROM.read(35));
-      //
-      //          float _x = EEPROM.read(30);
-      //          float _y = EEPROM.read(32);
-      //          float _z = EEPROM.read(34);
-      //
-      //          datas.setrate_sett((float)_x + (float)(x / 100));
-      //          datas.setwidth_sett((float)_y + (float)(y / 100));
-      //          datas.setcal_sett((float)_z + (float)(z / 100));
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //      }
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU: PROGRAM");
+
+      uint8_t cursur = 1;
+      uint8_t state = 0;
+      char tmp;
+      while (1)
+      {
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        cursur = cursur >= 8 ? 8 : cursur;
+        cursur = cursur <= 1 ? 1 : cursur;
+        clearCursor();
+
+        if (cursur >= 8) break;
+        if (cursur >= 4){
+          cursur = cursur >= 7 ? 6 : cursur;
+          lcd.setCursor(19, cursur - 3);
+        }
+        else{
+          lcd.setCursor(19, cursur);
+        }
+        lcd.print("<");
+
+        if (cursur >= 4 and state != 2){
+          lcd.setCursor(0, 1);
+          lcd.print("PROGRAM:  04");
+          lcd.setCursor(0, 2);
+          lcd.print("PROGRAM:  05");
+          lcd.setCursor(0, 3);
+          lcd.print("PROGRAM:  06");
+          state = 2;
+        }
+        else if (cursur <= 3 and state != 1){
+          lcd.setCursor(0, 1);
+          lcd.print("PROGRAM:  01");
+          lcd.setCursor(0, 2);
+          lcd.print("PROGRAM:  02");
+          lcd.setCursor(0, 3);
+          lcd.print("PROGRAM:  03");
+          state = 1;
+        }
+        if (cursur == 1 and tmp - '0' == 20){
+          float x = (EEPROM.read(1));
+          float y = (EEPROM.read(3));
+          float z = (EEPROM.read(5));
+
+          float _x = EEPROM.read(0);
+          float _y = EEPROM.read(2);
+          float _z = EEPROM.read(4);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        else if (cursur == 2 and tmp - '0' == 20){
+          float x = (EEPROM.read(7));
+          float y = (EEPROM.read(9));
+          float z = (EEPROM.read(11));
+
+          float _x = EEPROM.read(6);
+          float _y = EEPROM.read(8);
+          float _z = EEPROM.read(10);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        else if (cursur == 3 and tmp - '0' == 20){
+          float x = (EEPROM.read(13));
+          float y = (EEPROM.read(15));
+          float z = (EEPROM.read(17));
+
+          float _x = EEPROM.read(12);
+          float _y = EEPROM.read(14);
+          float _z = EEPROM.read(16);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        else if (cursur == 4 and tmp - '0' == 20){
+          float x = (EEPROM.read(19));
+          float y = (EEPROM.read(21));
+          float z = (EEPROM.read(23));
+
+          float _x = EEPROM.read(18);
+          float _y = EEPROM.read(20);
+          float _z = EEPROM.read(22);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        else if (cursur == 5 and tmp - '0' == 20){
+          float x = (EEPROM.read(25));
+          float y = (EEPROM.read(27));
+          float z = (EEPROM.read(29));
+
+          float _x = EEPROM.read(24);
+          float _y = EEPROM.read(26);
+          float _z = EEPROM.read(28);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        else if (cursur == 6 and tmp - '0' == 20){
+          float x = (EEPROM.read(31));
+          float y = (EEPROM.read(33));
+          float z = (EEPROM.read(35));
+
+          float _x = EEPROM.read(30);
+          float _y = EEPROM.read(32);
+          float _z = EEPROM.read(34);
+
+          datas.setrate_sett((float)_x + (float)(x / 100));
+          datas.setwidth_sett((float)_y + (float)(y / 100));
+          datas.setcal_sett((float)_z + (float)(z / 100));
+          break;
+        }
+        delay(frate);
+      }
     }
     uint8_t setDefult(){
       datas.setrate_sett(datas.getrate_defult());
@@ -786,182 +770,161 @@ class Menu {
       }
     }
     uint8_t save(){
-      //      lcd.clear();
-      //      lcd.setCursor(2, 0);
-      //      lcd.print("MENU: SAVE");
-      //
-      //      kp.count = 0;
-      //      uint8_t cursur = kp.Keypads();
-      //      uint8_t state = 0;
-      //
-      //      while (1)
-      //      {
-      //        cursur = kp.Keypads() * 1;
-      //        cursur = cursur >= 8 ? 8 : cursur;
-      //        cursur = cursur <= 1 ? 1 : cursur;
-      //        clearCursor();
-      //
-      //        if (cursur >= 7) break;
-      //        if (cursur >= 4)
-      //        {
-      //          cursur = cursur >= 7 ? 6 : cursur;
-      //          lcd.setCursor(19, cursur - 3);
-      //        }
-      //        else
-      //        {
-      //          lcd.setCursor(19, cursur);
-      //        }
-      //
-      //        lcd.print("<");
-      //
-      //        if (cursur >= 4 and state != 2)
-      //        {
-      //          kp.count = 4;
-      //          lcd.setCursor(0, 1);
-      //          lcd.print("PROGRAM:  04");
-      //          lcd.setCursor(0, 2);
-      //          lcd.print("PROGRAM:  05");
-      //          lcd.setCursor(0, 3);
-      //          lcd.print("PROGRAM:  06");
-      //          state = 2;
-      //        }
-      //        else if (cursur <= 3 and state != 1)
-      //        {
-      //          kp.count = 0;
-      //          lcd.setCursor(0, 1);
-      //          lcd.print("PROGRAM:  01");
-      //          lcd.setCursor(0, 2);
-      //          lcd.print("PROGRAM:  02");
-      //          lcd.setCursor(0, 3);
-      //          lcd.print("PROGRAM:  03");
-      //          state = 1;
-      //        }
-      //        if (cursur == 1 and kp.KeypadsPress())
-      //        {
-      //
-      //          EEPROM.write(0 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(2 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(4 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(1 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(3 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(5 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 2 and kp.KeypadsPress())
-      //        {
-      //
-      //          EEPROM.write(6 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(8 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(10 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(7 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(9 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(11 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 3 and kp.KeypadsPress())
-      //        {
-      //          EEPROM.write(12 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(14 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(16 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(13 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(15 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(17 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 4 and kp.KeypadsPress())
-      //        {
-      //          EEPROM.write(18 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(20 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(22 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(19 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(21 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(23 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 5 and kp.KeypadsPress())
-      //        {
-      //          EEPROM.write(24 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(26 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(28 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(25 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(27 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(29 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //        else if (cursur == 6 and kp.KeypadsPress())
-      //        {
-      //          EEPROM.write(30 , (uint8_t)datas.getrate_sett());
-      //          EEPROM.write(32 , (uint8_t)datas.getwidth_sett());
-      //          EEPROM.write(34 , (uint8_t)datas.getcal_sett());
-      //
-      //          EEPROM.write(31 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
-      //          EEPROM.write(33 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
-      //          EEPROM.write(35 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
-      //
-      //          EEPROM.commit();
-      //
-      //          kp.count = 0;
-      //          break;
-      //        }
-      //      }
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU: SAVE");
+
+      char tmp;
+      uint8_t cursur = 1;
+      uint8_t state = 0;
+
+      while (1)
+      {
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        cursur = cursur >= 8 ? 8 : cursur;
+        cursur = cursur <= 1 ? 1 : cursur;
+        clearCursor();
+
+        if (cursur >= 7) break;
+        if (cursur >= 4){
+          cursur = cursur >= 7 ? 6 : cursur;
+          lcd.setCursor(19, cursur - 3);
+        }
+        else{
+          lcd.setCursor(19, cursur);
+        }
+        lcd.print("<");
+
+        if (cursur >= 4 and state != 2){
+          lcd.setCursor(0, 1);
+          lcd.print("PROGRAM:  04");
+          lcd.setCursor(0, 2);
+          lcd.print("PROGRAM:  05");
+          lcd.setCursor(0, 3);
+          lcd.print("PROGRAM:  06");
+          state = 2;
+        }
+        else if (cursur <= 3 and state != 1){
+          lcd.setCursor(0, 1);
+          lcd.print("PROGRAM:  01");
+          lcd.setCursor(0, 2);
+          lcd.print("PROGRAM:  02");
+          lcd.setCursor(0, 3);
+          lcd.print("PROGRAM:  03");
+          state = 1;
+        }
+        if (cursur == 1 and tmp - '0' == 20){
+          EEPROM.write(0 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(2 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(4 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(1 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(3 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(5 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+        else if (cursur == 2 and tmp - '0' == 20){
+
+          EEPROM.write(6 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(8 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(10 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(7 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(9 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(11 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+        else if (cursur == 3 and tmp - '0' == 20){
+          EEPROM.write(12 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(14 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(16 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(13 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(15 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(17 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+        else if (cursur == 4 and tmp - '0' == 20){
+          EEPROM.write(18 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(20 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(22 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(19 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(21 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(23 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+        else if (cursur == 5 and tmp - '0' == 20){
+          EEPROM.write(24 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(26 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(28 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(25 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(27 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(29 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+        else if (cursur == 6 and tmp - '0' == 20){
+          EEPROM.write(30 , (uint8_t)datas.getrate_sett());
+          EEPROM.write(32 , (uint8_t)datas.getwidth_sett());
+          EEPROM.write(34 , (uint8_t)datas.getcal_sett());
+
+          EEPROM.write(31 , (uint8_t)(100 * ((float)datas.getrate_sett() - (uint8_t)datas.getrate_sett())));
+          EEPROM.write(33 , (uint8_t)(100 * ((float)datas.getwidth_sett() - (uint8_t)datas.getwidth_sett())));
+          EEPROM.write(35 , (uint8_t)(100 * ((float)datas.getcal_sett() - (uint8_t)datas.getcal_sett())));
+
+          EEPROM.commit();
+          break;
+        }
+      }
     }
     float calculator(){
-      //      float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());
-      //      float offset = datas.getfeed_calibated_1() - (25 * slope);
-      //
-      //      Serial.println("slope");
-      //      Serial.println(datas.getfeed_calibated_2());
-      //      Serial.println(datas.getfeed_calibated_1());
-      //      Serial.println("offset");
-      //      Serial.println(datas.getfeed_calibated_1());
-      //      Serial.println("END");
-      //
-      //      float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
-      //
-      //      datas.set_feed(feed);
-      //      datas.setcal_sett(feed);
-      //      Serial.println("feed");
-      //      Serial.println(datas.get_rate());
-      //      Serial.println(datas.get_width());
-      //      Serial.println("offset");
-      //      Serial.println(datas.get_speed());
-      //      Serial.println("END");
-      //
-      //      float pwm = slope * feed - offset;
-      //
-      //      Serial.println("CAL");
-      //      Serial.println(slope);
-      //      Serial.println(feed);
-      //      Serial.println(offset);
-      //      Serial.println(pwm);
-      //      Serial.println("END");
-      //      if (pwm < 0) pwm = 0;
-      //      return pwm;
+      float slope = 0.02 * (datas.getfeed_calibated_2() - datas.getfeed_calibated_1());
+      float offset = datas.getfeed_calibated_1() - (25 * slope);
+
+      Serial.println("slope");
+      Serial.println(datas.getfeed_calibated_2());
+      Serial.println(datas.getfeed_calibated_1());
+      Serial.println("offset");
+      Serial.println(datas.getfeed_calibated_1());
+      Serial.println("END");
+
+      float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
+
+      datas.set_feed(feed);
+      datas.setcal_sett(feed);
+      Serial.println("feed");
+      Serial.println(datas.get_rate());
+      Serial.println(datas.get_width());
+      Serial.println("offset");
+      Serial.println(datas.get_speed());
+      Serial.println("END");
+
+      float pwm = slope * feed - offset;
+
+      Serial.println("CAL");
+      Serial.println(slope);
+      Serial.println(feed);
+      Serial.println(offset);
+      Serial.println(pwm);
+      Serial.println("END");
+      if (pwm < 0) pwm = 0;
+      return pwm;
     }
     void run_pwm(float pwm){
       const int ledPin = 12;
@@ -1023,7 +986,7 @@ void loop() {
       default:                                              break;
     }
   }
-  delay(200);
+  delay(frate);
 }
 
 
