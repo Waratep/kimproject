@@ -831,6 +831,7 @@ class Menu {
           EEPROM.commit();
           break;
         }
+        delay(frate);
       }
     }
     float calculator() {
