@@ -535,21 +535,48 @@ class Menu {
       lcd.setCursor(3, 2);
       lcd.print("DRAING....");
       char tmp;
-      float val = 0 , counter = 0;
+      uint8_t state_run = 0;
+      uint8_t val = 0;
       while (tmp - '0' != 20) {
         tmp = keypads.getKey();
-        if (tmp and tmp - '0' != 20) {
-          if (counter == 0) val += (tmp - '0') * 10;
-          if (counter == 1) val += (tmp - '0') * 1;
-          counter++;
         if (tmp - '0' == -6) break;
+        lcd.clear();
+        lcd.setCursor(13, 2);
+        lcd.print("[");
+        lcd.print(val);
+        lcd.print("%]");
+        
+        if (!digitalRead(run_bt) and state_run == 0){
+          state_run = 1;
+          for (uint8_t duty = 0 ; duty < 100 ; duty++){
+            tmp = keypads.getKey();
+            if (tmp - '0' == -6 or tmp - '0' == 20) break;
+            if (digitalRead(run_bt)) break;
+            run_pwm(duty);
+            lcd.clear();
+            lcd.setCursor(2, 0);
+            lcd.print("MENU: DRAIN");
+            lcd.setCursor(3, 2);
+            lcd.print("DRAING....[");
+            lcd.print(duty);
+            lcd.print("%]");
+            delay(frate*5);
+          }
         }
-        Serial.println(val);
-        run_pwm(map(val, 0, 100, 0, 4095));
+        else if (digitalRead(run_bt) and state_run == 1){
+          state_run = 0;
+        }
         delay(frate);
       }
+      if(!digitalRead(run_bt)){
+        while(!digitalRead(run_bt)){
+          lcd.clear();
+          lcd.setCursor(4, 2);
+          lcd.print("TURN OFF PWM!");
+          delay(frate*5);
+        }
+      }
       run_pwm(0);
-
       subpage = 3;
     }
     uint8_t program() {
@@ -944,7 +971,7 @@ class Menu {
       pwm = pwm <= 0 ? 0 : pwm;
       pwm = pwm >= 100 ? 100 : pwm;
       uint16_t buffer_pwm = map(pwm, 0, 100, 0, 4095);
-      Serial.println(buffer_pwm);
+      Serial.println(buffer_pwm); 
       ledcWrite(ledChannel, buffer_pwm);
     }
 };
