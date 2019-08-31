@@ -12,7 +12,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 uint8_t state_run = 0;
 String gpsHour;
 uint8_t gpsActive = 0;
-#define frate 200
+#define frate 100
 
 char hexaKeys[4][4] = {
   {'1', '2', '3', 'A'},
@@ -271,11 +271,11 @@ class Menu {
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
       lcd.setCursor(5, 1);
-      lcd.print("CALIBATEION");
+      lcd.print("DISPLAY");
       lcd.setCursor(5, 2);
-      lcd.print("SETTING");
+      lcd.print("CALIBATEION");
       lcd.setCursor(5, 3);
-      lcd.print("DRAIN");
+      lcd.print("SETTING");
       page = 2;
 
     }
@@ -284,11 +284,11 @@ class Menu {
       lcd.setCursor(0, 0);
       lcd.print("MENU:PRESS TO ACT");
       lcd.setCursor(5, 1);
-      lcd.print("PROGRAM");
+      lcd.print("DRAIN");
       lcd.setCursor(5, 2);
-      lcd.print("SET DEFULT");
+      lcd.print("PROGRAM");
       lcd.setCursor(5, 3);
-      lcd.print("SAVE");
+      lcd.print("SET DEFULT");
       page = 3;
     }
     void main_page_3() {
@@ -338,6 +338,7 @@ class Menu {
         } else if (tmp - '0' == 19) {
           cursur++;
         }
+        if(tmp - '0' == -6) break;
         cursur = cursur >= 3 ? 3 : cursur;
         cursur = cursur <= 0 ? 1 : cursur;
         clearCursor();
@@ -411,10 +412,10 @@ class Menu {
           }
           datas.setfeed_calibated_2(feed);
         }
-        else if (cursur == 3 and tmp - '0' == 20)
-        {
+        else if ((cursur == 3 and tmp - '0' == 20)){
           break;
         }
+        
         delay(frate);
       }
       subpage = 1;
@@ -447,12 +448,12 @@ class Menu {
         } else if (tmp - '0' == 19) {
           cursur++;
         }
-        cursur = cursur >= 4 ? 4 : cursur;
+        cursur = cursur >= 3 ? 3 : cursur;
         cursur = cursur <= 1 ? 1 : cursur;
         clearCursor();
         lcd.setCursor(19, cursur);
         lcd.print("<");
-        if (cursur >= 4) break;
+        if (tmp - '0' == -6) break;
 
         if (cursur == 1 and tmp - '0' == 20) {
           float rate = 0 , val = 0, tmp = 0, counter = 0;
@@ -541,6 +542,7 @@ class Menu {
           if (counter == 0) val += (tmp - '0') * 10;
           if (counter == 1) val += (tmp - '0') * 1;
           counter++;
+        if (tmp - '0' == -6) break;
         }
         Serial.println(val);
         run_pwm(map(val, 0, 100, 0, 4095));
@@ -682,6 +684,9 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
+        else if(tmp - '0' == -6){
+          break;
+        }
         delay(frate);
       }
     }
@@ -707,6 +712,37 @@ class Menu {
       char tmp;
       while (tmp - '0' != 20) {
         tmp = keypads.getKey();
+        if (tmp - '0' == -6) break;
+      }
+    }
+    uint8_t ackSave(){
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("MENU: SAVE ?");
+      lcd.setCursor(9, 1);
+      lcd.print("NO");
+      lcd.setCursor(9, 2);
+      lcd.print("YES");
+      char tmp;
+      uint8_t cursur = 1;
+      while(1){
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        cursur = cursur >= 2 ? 2 : cursur;
+        cursur = cursur <= 1 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+        if (cursur == 2 and tmp - '0' == 20) {
+          return 1;
+        }else if (cursur == 1 and tmp - '0' == 20){
+          return 0;
+        }
+        delay(frate);
       }
     }
     uint8_t save() {
@@ -726,11 +762,11 @@ class Menu {
         } else if (tmp - '0' == 19) {
           cursur++;
         }
-        cursur = cursur >= 8 ? 8 : cursur;
+        cursur = cursur >= 7 ? 7 : cursur;
         cursur = cursur <= 1 ? 1 : cursur;
         clearCursor();
 
-        if (cursur >= 7) break;
+        if (tmp - '0' == -6) break;
         if (cursur >= 4) {
           cursur = cursur >= 7 ? 6 : cursur;
           lcd.setCursor(19, cursur - 3);
@@ -920,31 +956,28 @@ void loop() {
 
   if (tmp - '0' == 20) {
     switch (menu.cursur_select) {
-      case 1: menu.calibation(); menu.pages(2);  break;
-      case 2: menu.settiing();   menu.pages(2);  break;
-      case 3: menu.drain();      menu.pages(2);  break;
-      case 4: menu.program();    menu.pages(2);  break;
-      case 5: menu.setDefult();  menu.pages(2);  break;
-      case 6: menu.save();       menu.pages(2);  break;
-      default:                                   break;
+      case 1:Serial.println("SHOW");                                menu.pages(2);  break;
+      case 2: menu.calibation();                                    menu.pages(2);  break;
+      case 3: menu.settiing();   if(menu.ackSave()) {menu.save();}  menu.pages(2);  break;
+      case 4: menu.drain();                                         menu.pages(2);  break;
+      case 5: menu.program();                                       menu.pages(2);  break;
+      case 6: menu.setDefult();                                     menu.pages(2);  break;
+      default:                                                                      break;
     }
   }
 
-  if (!digitalRead(run_bt) and state_run == 0)
-  {
+  if (!digitalRead(run_bt) and state_run == 0){
     state_run = 1;
     menu.run_pwm(menu.calculator());
     Serial.println(state_run);
   }
-  else if (digitalRead(run_bt) and state_run == 1)
-  {
+  else if (digitalRead(run_bt) and state_run == 1){
     state_run = 0;
     menu.run_pwm(0);
     Serial.println(state_run);
   }
   delay(frate);
 }
-
 
 void taskTwo( void * parameter ) {
   while (1) {
