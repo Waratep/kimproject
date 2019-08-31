@@ -715,6 +715,36 @@ class Menu {
         if (tmp - '0' == -6) break;
       }
     }
+    uint8_t displayall(){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("RATE : "); 
+      lcd.setCursor(0, 1);
+      lcd.print("SPEED: "); 
+      lcd.setCursor(0, 2);
+      lcd.print("WIDTH: "); 
+      lcd.setCursor(0, 3);
+      lcd.print("FEED : "); 
+      char tmp;
+      while(1){
+        tmp = keypads.getKey();
+        if (tmp - '0' == -6 or tmp - '0' == 20) break;
+        lcd.setCursor(7, 0);
+        lcd.print(datas.getrate_sett()); lcd.print(" kg/r");
+        lcd.setCursor(7, 1);
+        lcd.print(datas.get_speed()); lcd.print(" km/r");
+        lcd.setCursor(7, 2);
+        lcd.print(datas.getwidth_sett()); lcd.print(" m");
+        lcd.setCursor(7, 3);
+        lcd.print(datas.get_feed()); lcd.print(" g/s");
+        delay(frate);
+        Serial.println("in display");
+      }
+      Serial.println(datas.getrate_sett());
+      Serial.println(datas.get_speed());
+      Serial.println(datas.getwidth_sett());
+      Serial.println(datas.get_feed());
+    }
     uint8_t ackSave(){
       lcd.clear();
       lcd.setCursor(2, 0);
@@ -956,7 +986,7 @@ void loop() {
 
   if (tmp - '0' == 20) {
     switch (menu.cursur_select) {
-      case 1:Serial.println("SHOW");                                menu.pages(2);  break;
+      case 1: menu.displayall();                                    menu.pages(2);  break;
       case 2: menu.calibation();                                    menu.pages(2);  break;
       case 3: menu.settiing();   if(menu.ackSave()) {menu.save();}  menu.pages(2);  break;
       case 4: menu.drain();                                         menu.pages(2);  break;
