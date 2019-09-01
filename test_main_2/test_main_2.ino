@@ -537,12 +537,15 @@ class Menu {
       char tmp;
       uint8_t state_run = 0;
       uint8_t val = 0;
-      while (tmp - '0' != 20) {
+      while (1) {
         tmp = keypads.getKey();
         if (tmp - '0' == -6) break;
+        if (tmp - '0' == 20) break;
         lcd.clear();
-        lcd.setCursor(13, 2);
-        lcd.print("[");
+        lcd.setCursor(2, 0);
+        lcd.print("MENU: DRAIN");
+        lcd.setCursor(3, 2);
+        lcd.print("DRAING....[");
         lcd.print(val);
         lcd.print("%]");
         
@@ -550,8 +553,10 @@ class Menu {
           state_run = 1;
           for (uint8_t duty = 0 ; duty < 100 ; duty++){
             tmp = keypads.getKey();
-            if (tmp - '0' == -6 or tmp - '0' == 20) break;
-            if (digitalRead(run_bt)) break;
+            if (digitalRead(run_bt)){
+              delay(frate*5);
+              break;
+            }
             run_pwm(duty);
             lcd.clear();
             lcd.setCursor(2, 0);
@@ -566,9 +571,10 @@ class Menu {
         else if (digitalRead(run_bt) and state_run == 1){
           state_run = 0;
         }
-        delay(frate);
+        delay(frate*2);
       }
-      if(!digitalRead(run_bt)){
+      if (!digitalRead(run_bt)){
+        delay(frate*5);
         while(!digitalRead(run_bt)){
           lcd.clear();
           lcd.setCursor(4, 2);
@@ -576,6 +582,7 @@ class Menu {
           delay(frate*5);
         }
       }
+      
       run_pwm(0);
       subpage = 3;
     }
@@ -1022,16 +1029,15 @@ void loop() {
       default:                                                                      break;
     }
   }
+  Serial.println(digitalRead(run_bt));
 
   if (!digitalRead(run_bt) and state_run == 0){
     state_run = 1;
     menu.run_pwm(menu.calculator());
-    Serial.println(state_run);
   }
   else if (digitalRead(run_bt) and state_run == 1){
     state_run = 0;
     menu.run_pwm(0);
-    Serial.println(state_run);
   }
   delay(frate);
 }
