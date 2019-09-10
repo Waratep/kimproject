@@ -195,6 +195,8 @@ Data datas;
 
 class Menu {
   public:
+    int slidingpage;
+    int last_slidingpage;
     uint8_t page;
     uint8_t last_page;
     uint8_t cursur_select;
@@ -202,6 +204,8 @@ class Menu {
     float subpage;
     float cursur;
     Menu() {
+      last_slidingpage = 0;
+      slidingpage   = 0;
       page          = 0;
       subpage       = 0;
       cursur        = 0;
@@ -340,7 +344,7 @@ class Menu {
         } else if (tmp - '0' == 19) {
           cursur++;
         }
-        if(tmp - '0' == -6) break;
+        if (tmp - '0' == -6) break;
         cursur = cursur >= 3 ? 3 : cursur;
         cursur = cursur <= 0 ? 1 : cursur;
         clearCursor();
@@ -414,10 +418,10 @@ class Menu {
           }
           datas.setfeed_calibated_2(feed);
         }
-        else if ((cursur == 3 and tmp - '0' == 20)){
+        else if ((cursur == 3 and tmp - '0' == 20)) {
           break;
         }
-        
+
         delay(frate);
       }
       subpage = 1;
@@ -550,13 +554,13 @@ class Menu {
         lcd.print("DRAING....[");
         lcd.print(val);
         lcd.print("%]");
-        
-        if (!digitalRead(run_bt) and state_run == 0){
+
+        if (!digitalRead(run_bt) and state_run == 0) {
           state_run = 1;
-          for (uint8_t duty = 0 ; duty < 100 ; duty++){
+          for (uint8_t duty = 0 ; duty < 100 ; duty++) {
             tmp = keypads.getKey();
-            if (digitalRead(run_bt)){
-              delay(frate*5);
+            if (digitalRead(run_bt)) {
+              delay(frate * 5);
               break;
             }
             run_pwm(duty);
@@ -567,24 +571,24 @@ class Menu {
             lcd.print("DRAING....[");
             lcd.print(duty);
             lcd.print("%]");
-            delay(frate*5);
+            delay(frate * 5);
           }
         }
-        else if (digitalRead(run_bt) and state_run == 1){
+        else if (digitalRead(run_bt) and state_run == 1) {
           state_run = 0;
         }
-        delay(frate*2);
+        delay(frate * 2);
       }
-      if (!digitalRead(run_bt)){
-        delay(frate*5);
-        while(!digitalRead(run_bt)){
+      if (!digitalRead(run_bt)) {
+        delay(frate * 5);
+        while (!digitalRead(run_bt)) {
           lcd.clear();
           lcd.setCursor(4, 2);
           lcd.print("TURN OFF PWM!");
-          delay(frate*5);
+          delay(frate * 5);
         }
       }
-      
+
       run_pwm(0);
       subpage = 3;
     }
@@ -720,7 +724,7 @@ class Menu {
           datas.setcal_sett((float)_z + (float)(z / 100));
           break;
         }
-        else if(tmp - '0' == -6){
+        else if (tmp - '0' == -6) {
           break;
         }
         delay(frate);
@@ -751,18 +755,18 @@ class Menu {
         if (tmp - '0' == -6) break;
       }
     }
-    uint8_t displayall(){
+    uint8_t displayall() {
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("RATE : "); 
+      lcd.print("RATE : ");
       lcd.setCursor(0, 1);
-      lcd.print("SPEED: "); 
+      lcd.print("SPEED: ");
       lcd.setCursor(0, 2);
-      lcd.print("WIDTH: "); 
+      lcd.print("WIDTH: ");
       lcd.setCursor(0, 3);
-      lcd.print("FEED : "); 
+      lcd.print("FEED : ");
       char tmp;
-      while(1){
+      while (1) {
         tmp = keypads.getKey();
         if (tmp - '0' == -6 or tmp - '0' == 20) break;
         lcd.setCursor(7, 0);
@@ -781,7 +785,7 @@ class Menu {
       Serial.println(datas.getwidth_sett());
       Serial.println(datas.get_feed());
     }
-    uint8_t ackSave(){
+    uint8_t ackSave() {
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("MENU: SAVE ?");
@@ -791,7 +795,7 @@ class Menu {
       lcd.print("YES");
       char tmp;
       uint8_t cursur = 1;
-      while(1){
+      while (1) {
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -805,7 +809,7 @@ class Menu {
         lcd.print("<");
         if (cursur == 2 and tmp - '0' == 20) {
           return 1;
-        }else if (cursur == 1 and tmp - '0' == 20){
+        } else if (cursur == 1 and tmp - '0' == 20) {
           return 0;
         }
         delay(frate);
@@ -980,7 +984,7 @@ class Menu {
       pwm = pwm <= 0 ? 0 : pwm;
       pwm = pwm >= 100 ? 100 : pwm;
       uint16_t buffer_pwm = map(pwm, 0, 100, 0, 4095);
-      Serial.println(buffer_pwm); 
+      Serial.println(buffer_pwm);
       ledcWrite(ledChannel, buffer_pwm);
     }
 };
@@ -999,48 +1003,69 @@ void setup() {
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
 
-//  xTaskCreate(
-//    taskTwo,          /* Task function. */
-//    "TaskTwo",        /* String with name of task. */
-//    20000,            /* Stack size in bytes. */
-//    NULL,             /* Parameter passed as input of the task */
-//    1,                /* Priority of the task. */
-//    NULL);            /* Task handle. */
+  //  xTaskCreate(
+  //    taskTwo,          /* Task function. */
+  //    "TaskTwo",        /* String with name of task. */
+  //    20000,            /* Stack size in bytes. */
+  //    NULL,             /* Parameter passed as input of the task */
+  //    1,                /* Priority of the task. */
+  //    NULL);            /* Task handle. */
 
 }
 
 void loop() {
 
   char tmp = keypads.getKey();
-  if (tmp - '0' == 18) {
-    menu.cursur--;
-  } else if (tmp - '0' == 19) {
-    menu.cursur++;
-  }
-  menu.menucursor();
-  menu.pagechange();
+  if (tmp) Serial.println(tmp - '0');
 
-  if (tmp - '0' == 20) {
-    switch (menu.cursur_select) {
-      case 1: menu.displayall();                                    menu.pages(2);  break;
-      case 2: menu.calibation();                                    menu.pages(2);  break;
-      case 3: menu.settiing();   if(menu.ackSave()) {menu.save();}  menu.pages(2);  break;
-      case 4: menu.drain();                                         menu.pages(2);  break;
-      case 5: menu.program();                                       menu.pages(2);  break;
-      case 6: menu.setDefult();                                     menu.pages(2);  break;
-      default:                                                                      break;
+  menu.last_slidingpage = menu.slidingpage;
+  if (tmp - '0' == -6) {
+    menu.slidingpage--;
+    Serial.println(menu.slidingpage);
+  } else if (tmp - '0' == -13) {
+    menu.slidingpage++;
+    Serial.println(menu.slidingpage);
+  }
+  if (menu.slidingpage > 2) menu.slidingpage = 0;
+  if (menu.slidingpage < 0) menu.slidingpage = 2;
+  
+  menu.menucursor();
+
+  if (menu.last_slidingpage != menu.slidingpage) {
+    switch (menu.slidingpage) {
+      case 0: menu.main_page_1();
+        break;
+      case 1: menu.main_page_2();
+        break;
+      case 2: menu.main_page_3();
+        break;
+      //    case 3: menu.drain();
+      //      break;
+      default:
+        break;
     }
   }
-//  Serial.println(digitalRead(run_bt));
+  //  if (tmp - '0' == 20) {
+  //    switch (menu.cursur_select) {
+  //      case 1: menu.displayall();                                    menu.pages(2);  break;
+  //      case 2: menu.calibation();                                    menu.pages(2);  break;
+  //      case 3: menu.settiing();   if(menu.ackSave()) {menu.save();}  menu.pages(2);  break;
+  //      case 4: menu.drain();                                         menu.pages(2);  break;
+  //      case 5: menu.program();                                       menu.pages(2);  break;
+  //      case 6: menu.setDefult();                                     menu.pages(2);  break;
+  //      default:                                                                      break;
+  //    }
+  //  }
+  //  Serial.println(digitalRead(run_bt));
 
-  if (!digitalRead(run_bt) and state_run == 0){
-    state_run = 1;
-    menu.run_pwm(menu.calculator());
-  }
-  else if (digitalRead(run_bt) and state_run == 1){
-    state_run = 0;
-    menu.run_pwm(0);
-  }
+  //  if (!digitalRead(run_bt) and state_run == 0) {
+  //    state_run = 1;
+  //    menu.run_pwm(menu.calculator());
+  //  }
+  //  else if (digitalRead(run_bt) and state_run == 1) {
+  //    state_run = 0;
+  //    menu.run_pwm(0);
+  //  }
   delay(frate);
 }
 
@@ -1068,7 +1093,7 @@ void loop() {
 //          else {
 //            //            Serial.println(s);
 //            gpsActive = 0;
-//            
+//
 //          }
 //        }
 //      }
@@ -1077,7 +1102,7 @@ void loop() {
 //        digitalWrite(red,HIGH);
 //      }else{
 //        digitalWrite(blue,HIGH);
-//        digitalWrite(red,LOW);        
+//        digitalWrite(red,LOW);
 //      }
 //    }
 //    vTaskDelay(1000);
