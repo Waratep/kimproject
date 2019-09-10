@@ -200,7 +200,6 @@ class Menu {
     uint8_t page;
     uint8_t last_page;
     uint8_t cursur_select;
-
     float subpage;
     float cursur;
     Menu() {
@@ -216,17 +215,6 @@ class Menu {
     void menucursor() {
       clearCursor();
       updateCursor();
-    }
-    void pages(uint8_t _page) {
-      switch (_page)
-      {
-        case 0: page_0();                  break;
-        case 1: page_1();                  break;
-        case 2: main_page_1();             break;
-        case 3: main_page_2();             break;
-        case 4: main_page_3();             break;
-        default:                           break;
-      }
     }
     void clearCursor() {
       for (uint8_t i = 0 ; i < 4 ; i++) {
@@ -263,21 +251,21 @@ class Menu {
         page = 4;
       }
     }
-    void page_0() {
-
-    }
-    void page_1() {
-
-
-    }
     void main_page_1() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:RUNNING");
       lcd.setCursor(0, 1);
       lcd.print("RATE : ");
+      lcd.print(datas.get_rate());
+      lcd.setCursor(15, 1);
+      lcd.print("kg/r");
       lcd.setCursor(0, 2);
       lcd.print("VEL  : ");
+      lcd.print(datas.get_speed());
+      lcd.setCursor(15, 2);
+      lcd.print("km/h");
+      
       page = 2;
 
     }
@@ -287,10 +275,16 @@ class Menu {
       lcd.print("MENU:SETUP");
       lcd.setCursor(0, 1);
       lcd.print("RATE  : ");
+      lcd.print(datas.get_rate());
+      lcd.setCursor(15, 1);
+      lcd.print("kg/r");
       lcd.setCursor(0, 2);
       lcd.print("WIDTH : ");
+      lcd.print(datas.get_width());
+      lcd.setCursor(15, 2);
+      lcd.print("m");
       lcd.setCursor(0, 3);
-      lcd.print("PROGRAM");
+      lcd.print("PROGRAM : ");
       page = 3;
     }
     void main_page_3() {
@@ -305,17 +299,30 @@ class Menu {
       lcd.print("FEED : ");
       page = 4;
     }
-
+    void main_page_4() {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("MENU:DRAIN");
+      lcd.setCursor(5, 2);
+      lcd.print("DRAIN....");
+      page = 4;
+    }
     uint8_t runing(int _curcur) {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:RUNNING");
       lcd.setCursor(0, 1);
       lcd.print("RATE : ");
+      lcd.print(datas.get_rate());
+      lcd.setCursor(15, 1);
+      lcd.print("kg/r");
       lcd.setCursor(0, 2);
       lcd.print("VEL  : ");
-
-      uint8_t cursur = 1;
+      lcd.print(datas.get_speed());
+      lcd.setCursor(15, 2);
+      lcd.print("km/h");
+      
+      uint8_t cursur = _curcur;
       char tmp;
 
       while (1) {
@@ -352,8 +359,8 @@ class Menu {
             lcd.print(val / 10);
             lcd.setCursor(15, 1);
             lcd.print("kg/r");
-
           }
+          datas.set_rate(val/10);
           break;
         }
         else if (_curcur == 2)
@@ -496,6 +503,97 @@ class Menu {
       }
       subpage = 1;
     }
+    uint8_t setups(int _curcur){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("MENU:SETUP");
+      lcd.setCursor(0, 1);
+      lcd.print("RATE  : ");
+      lcd.print(datas.get_rate());
+      lcd.setCursor(15, 1);
+      lcd.print("kg/r");
+      lcd.setCursor(0, 2);
+      lcd.print("WIDTH : ");
+      lcd.print(datas.get_width());
+      lcd.setCursor(15, 2);
+      lcd.print("m");
+      lcd.setCursor(0, 3);
+      lcd.print("PROGRAM : ");
+      
+      uint8_t cursur = _curcur;
+      char tmp;
+
+      while (1) {
+        tmp = keypads.getKey();
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        if (tmp - '0' == -6) break;
+        cursur = cursur >= 2 ? 2 : cursur;
+        cursur = cursur <= 0 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+        if (_curcur == 1)
+        {
+          float feed;
+          char tmp = keypads.getKey();
+          float val = 0 , counter = 0;
+          while (tmp - '0' != 20)
+          {
+            delay(frate);
+            tmp = keypads.getKey();
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }
+            lcd.setCursor(0, 1);
+            lcd.print("RATE  : ");
+            lcd.print(val / 10);
+            lcd.setCursor(15, 1);
+            lcd.print("kg/r");
+          }
+          datas.set_rate(val/10);
+          break;
+        }
+        else if (_curcur == 2)
+        {
+          float feed;
+          char tmp = keypads.getKey();
+          float val = 0 , counter = 0;
+          while (tmp - '0' != 20)
+          {
+            delay(frate);
+            tmp = keypads.getKey();
+            if (tmp and tmp - '0' != 20) {
+              if (counter == 0) val += (tmp - '0') * 1000;
+              if (counter == 1) val += (tmp - '0') * 100;
+              if (counter == 2) val += (tmp - '0') * 10;
+              if (counter == 3) val += (tmp - '0') * 1;
+              counter++;
+            }
+            lcd.setCursor(0, 2);
+            lcd.print("WIDTH : ");
+            lcd.print(val / 10);
+            lcd.setCursor(15, 2);
+            lcd.print("m");
+          }
+          datas.set_width(val/10);
+          break;
+        }
+        if ((tmp - '0' == -6) or (tmp - '0' == 20)) {
+          break;
+        }
+
+        delay(frate);
+      }
+      subpage = 1;
+    }      
     uint8_t calibation() {
       lcd.clear();
       lcd.setCursor(2, 0);
@@ -1127,8 +1225,8 @@ void loop() {
     menu.cursur++;
   }
 
-  if (menu.slidingpage > 2) menu.slidingpage = 0;
-  if (menu.slidingpage < 0) menu.slidingpage = 2;
+  if (menu.slidingpage > 3) menu.slidingpage = 0;
+  if (menu.slidingpage < 0) menu.slidingpage = 3;
 
   switch (menu.slidingpage) {
     case 0:
@@ -1160,14 +1258,16 @@ void loop() {
         break;
       case 2: menu.main_page_3();
         break;
-      //    case 3: menu.drain();
-      //      break;
+      case 3: menu.main_page_4();
+        break;
       default:
         break;
     }
   }
   if (tmp - '0' == 20 and menu.slidingpage == 0) {
     menu.runing(menu.cursur);
+  }else if (tmp - '0' == 20 and menu.slidingpage == 1) {
+    menu.setups(menu.cursur);
   }else if (tmp - '0' == 20 and menu.slidingpage == 2) {
     menu.sim(menu.cursur);
   }
