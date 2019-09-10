@@ -997,13 +997,13 @@ void setup() {
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
 
-  xTaskCreate(
-    taskTwo,          /* Task function. */
-    "TaskTwo",        /* String with name of task. */
-    20000,            /* Stack size in bytes. */
-    NULL,             /* Parameter passed as input of the task */
-    1,                /* Priority of the task. */
-    NULL);            /* Task handle. */
+//  xTaskCreate(
+//    taskTwo,          /* Task function. */
+//    "TaskTwo",        /* String with name of task. */
+//    20000,            /* Stack size in bytes. */
+//    NULL,             /* Parameter passed as input of the task */
+//    1,                /* Priority of the task. */
+//    NULL);            /* Task handle. */
 
 }
 
@@ -1029,7 +1029,7 @@ void loop() {
       default:                                                                      break;
     }
   }
-  Serial.println(digitalRead(run_bt));
+//  Serial.println(digitalRead(run_bt));
 
   if (!digitalRead(run_bt) and state_run == 0){
     state_run = 1;
@@ -1042,43 +1042,43 @@ void loop() {
   delay(frate);
 }
 
-void taskTwo( void * parameter ) {
-  while (1) {
-    if (Serial2.available()) {
-      String s = Serial2.readStringUntil('\n');
-      if (s.startsWith("$GPRMC")) {
-        int posHeader = s.indexOf("$GPRMC");
-        if (posHeader == 0) { // Got "$GPRMC"
-
-          if (s.length() >= 69) {
-            //            Serial.println("That's a perfectly acceptable text message");
-            s.trim();
-            //            Serial.println(s);
-            int posHour = s.indexOf(',');// Get first occurance of comma ","
-            //            Serial.print("Position of First Comma: ");
-            //            Serial.println(posHour);
-
-            gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
-            //            Serial.print("GPS Hour: ");
-            //            Serial.println(gpsHour);
-            gpsActive = 1;
-          }
-          else {
-            //            Serial.println(s);
-            gpsActive = 0;
-            
-          }
-        }
-      }
-      if (gpsActive){
-        digitalWrite(blue,LOW);
-        digitalWrite(red,HIGH);
-      }else{
-        digitalWrite(blue,HIGH);
-        digitalWrite(red,LOW);        
-      }
-    }
-    vTaskDelay(1000);
-  }
-  vTaskDelete( NULL );
-}
+//void taskTwo( void * parameter ) {
+//  while (1) {
+//    if (Serial2.available()) {
+//      String s = Serial2.readStringUntil('\n');
+//      if (s.startsWith("$GPRMC")) {
+//        int posHeader = s.indexOf("$GPRMC");
+//        if (posHeader == 0) { // Got "$GPRMC"
+//
+//          if (s.length() >= 69) {
+//            //            Serial.println("That's a perfectly acceptable text message");
+//            s.trim();
+//            //            Serial.println(s);
+//            int posHour = s.indexOf(',');// Get first occurance of comma ","
+//            //            Serial.print("Position of First Comma: ");
+//            //            Serial.println(posHour);
+//
+//            gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
+//            //            Serial.print("GPS Hour: ");
+//            //            Serial.println(gpsHour);
+//            gpsActive = 1;
+//          }
+//          else {
+//            //            Serial.println(s);
+//            gpsActive = 0;
+//            
+//          }
+//        }
+//      }
+//      if (gpsActive){
+//        digitalWrite(blue,LOW);
+//        digitalWrite(red,HIGH);
+//      }else{
+//        digitalWrite(blue,HIGH);
+//        digitalWrite(red,LOW);        
+//      }
+//    }
+//    vTaskDelay(1000);
+//  }
+//  vTaskDelete( NULL );
+//}
