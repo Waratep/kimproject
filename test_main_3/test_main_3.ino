@@ -29,9 +29,12 @@ class Data {
   private:
     float _rate;
     float _speed;
+    float _simspeed;
     float _width;
     float _feed;
+    float _simfeed;
     uint8_t _pwm;
+    uint8_t _simpwm;
 
     uint8_t pwm_calibated_1;
     float   feed_calibated_1;
@@ -66,6 +69,25 @@ class Data {
       rate_defult = 50;
       width_defult = 1.5;
       cal_defult = 1.5;
+    }
+
+    float get_simspeed() {
+      return _simspeed;
+    }
+    float set_simspeed(float simspeed) {
+      _simspeed = simspeed;
+    }
+    uint8_t get_simpwm() {
+      return _simpwm;
+    }
+    uint8_t set_simpwm(uint8_t simpwm) {
+      _simpwm = simpwm;
+    }
+    float get_simfeed() {
+      return _simfeed;
+    }
+    float set_simfeed(float simfeed) {
+      _simfeed = simfeed;
     }
     float get_rate()
     {
@@ -265,7 +287,7 @@ class Menu {
       lcd.print(datas.get_speed());
       lcd.setCursor(15, 2);
       lcd.print("km/h");
-      
+
       page = 2;
 
     }
@@ -293,10 +315,19 @@ class Menu {
       lcd.print("MENU:SIM");
       lcd.setCursor(0, 1);
       lcd.print("VEL  : ");
+      lcd.print(datas.get_simspeed());
+      lcd.setCursor(15, 1);
+      lcd.print("km/h");
       lcd.setCursor(0, 2);
       lcd.print("PWM  : ");
+      lcd.print(datas.get_simpwm());
+      lcd.setCursor(15, 2);
+      lcd.print("%");
       lcd.setCursor(0, 3);
       lcd.print("FEED : ");
+      lcd.print(datas.get_simfeed());
+      lcd.setCursor(15, 3);
+      lcd.print("kg/r");
       page = 4;
     }
     void main_page_4() {
@@ -321,7 +352,7 @@ class Menu {
       lcd.print(datas.get_speed());
       lcd.setCursor(15, 2);
       lcd.print("km/h");
-      
+
       uint8_t cursur = _curcur;
       char tmp;
 
@@ -356,11 +387,13 @@ class Menu {
             }
             lcd.setCursor(0, 1);
             lcd.print("RATE : ");
+            lcd.print("        ");
+            lcd.setCursor(7, 1);
             lcd.print(val / 10);
             lcd.setCursor(15, 1);
             lcd.print("kg/r");
           }
-          datas.set_rate(val/10);
+          datas.set_rate(val / 10);
           break;
         }
         else if (_curcur == 2)
@@ -381,6 +414,8 @@ class Menu {
             }
             lcd.setCursor(0, 2);
             lcd.print("VEL  : ");
+            lcd.print("        ");
+            lcd.setCursor(7, 2);
             lcd.print(val / 10);
             lcd.setCursor(15, 2);
             lcd.print("km/h");
@@ -395,21 +430,31 @@ class Menu {
       }
       subpage = 1;
     }
-    uint8_t sim(int _curcur){
+    uint8_t sim(int _curcur) {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:SIM");
       lcd.setCursor(0, 1);
       lcd.print("VEL  : ");
+      lcd.print(datas.get_simspeed());
+      lcd.setCursor(15, 1);
+      lcd.print("km/h"); 
       lcd.setCursor(0, 2);
       lcd.print("PWM  : ");
+      lcd.print(datas.get_simpwm());
+      lcd.setCursor(15, 2);
+      lcd.print("%");
       lcd.setCursor(0, 3);
       lcd.print("FEED : ");
+      lcd.print(datas.get_simfeed());
+      lcd.setCursor(15, 3);
+      lcd.print("kg/r");
+      
       uint8_t cursur = _curcur;
       char tmp;
 
       while (1) {
-        
+
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -440,11 +485,13 @@ class Menu {
             }
             lcd.setCursor(0, 1);
             lcd.print("VEL  : ");
+            lcd.print("        ");
+            lcd.setCursor(7, 1);
             lcd.print(val / 10);
             lcd.setCursor(15, 1);
             lcd.print("km/h");
-
           }
+          datas.set_simspeed(val / 10);
           break;
         }
         else if (_curcur == 2)
@@ -465,10 +512,13 @@ class Menu {
             }
             lcd.setCursor(0, 2);
             lcd.print("PWM  : ");
+            lcd.print("        ");
+            lcd.setCursor(7, 2);
             lcd.print(val / 10);
             lcd.setCursor(15, 2);
             lcd.print("%");
           }
+          datas.set_simpwm(val / 10);
           break;
         }
         else if (_curcur == 3)
@@ -489,10 +539,13 @@ class Menu {
             }
             lcd.setCursor(0, 3);
             lcd.print("FEED : ");
+            lcd.print("      ");
+            lcd.setCursor(7, 3);
             lcd.print(val / 10);
             lcd.setCursor(15, 3);
             lcd.print("km/r");
           }
+          datas.set_simfeed(val / 10);
           break;
         }
         if ((tmp - '0' == -6) or (tmp - '0' == 20)) {
@@ -503,7 +556,7 @@ class Menu {
       }
       subpage = 1;
     }
-    uint8_t setups(int _curcur){
+    uint8_t setups(int _curcur) {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:SETUP");
@@ -519,7 +572,7 @@ class Menu {
       lcd.print("m");
       lcd.setCursor(0, 3);
       lcd.print("PROGRAM : ");
-      
+
       uint8_t cursur = _curcur;
       char tmp;
 
@@ -554,11 +607,13 @@ class Menu {
             }
             lcd.setCursor(0, 1);
             lcd.print("RATE  : ");
+            lcd.print("        ");
+            lcd.setCursor(8, 1);
             lcd.print(val / 10);
             lcd.setCursor(15, 1);
             lcd.print("kg/r");
           }
-          datas.set_rate(val/10);
+          datas.set_rate(val / 10);
           break;
         }
         else if (_curcur == 2)
@@ -579,11 +634,13 @@ class Menu {
             }
             lcd.setCursor(0, 2);
             lcd.print("WIDTH : ");
+            lcd.print("        ");
+            lcd.setCursor(8, 2);
             lcd.print(val / 10);
             lcd.setCursor(15, 2);
             lcd.print("m");
           }
-          datas.set_width(val/10);
+          datas.set_width(val / 10);
           break;
         }
         if ((tmp - '0' == -6) or (tmp - '0' == 20)) {
@@ -593,7 +650,7 @@ class Menu {
         delay(frate);
       }
       subpage = 1;
-    }      
+    }
     uint8_t calibation() {
       lcd.clear();
       lcd.setCursor(2, 0);
@@ -1209,7 +1266,7 @@ void setup() {
 void loop() {
 
   char tmp = keypads.getKey();
-//  if (tmp) Serial.println(tmp - '0');
+  //  if (tmp) Serial.println(tmp - '0');
 
   menu.last_slidingpage = menu.slidingpage;
 
@@ -1266,9 +1323,9 @@ void loop() {
   }
   if (tmp - '0' == 20 and menu.slidingpage == 0) {
     menu.runing(menu.cursur);
-  }else if (tmp - '0' == 20 and menu.slidingpage == 1) {
+  } else if (tmp - '0' == 20 and menu.slidingpage == 1) {
     menu.setups(menu.cursur);
-  }else if (tmp - '0' == 20 and menu.slidingpage == 2) {
+  } else if (tmp - '0' == 20 and menu.slidingpage == 2) {
     menu.sim(menu.cursur);
   }
   //  Serial.println(digitalRead(run_bt));
