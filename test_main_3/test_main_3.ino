@@ -1033,10 +1033,30 @@ void loop() {
   } else if (tmp - '0' == 19) {
     menu.cursur++;
   }
-  
+
   if (menu.slidingpage > 2) menu.slidingpage = 0;
   if (menu.slidingpage < 0) menu.slidingpage = 2;
-  
+
+  switch (menu.slidingpage) {
+    case 0:
+      if (menu.cursur < 0) menu.cursur = 0;
+      if (menu.cursur > 2) menu.cursur = 2;
+      break;
+    case 1:
+      if (menu.cursur < 0) menu.cursur = 0;
+      if (menu.cursur > 3) menu.cursur = 3;
+      break;
+    case 2:
+      if (menu.cursur < 0) menu.cursur = 0;
+      if (menu.cursur > 3) menu.cursur = 3;
+      break;
+    //    case 3:
+    //      if (menu.cursur < 0) menu.cursur = 0;
+    //      if (menu.cursur > 1) menu.cursur = 1;
+    //      break;
+    default:
+      break;
+  }
   menu.menucursor();
 
   if (menu.last_slidingpage != menu.slidingpage) {
