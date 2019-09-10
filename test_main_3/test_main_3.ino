@@ -1019,6 +1019,7 @@ void loop() {
   if (tmp) Serial.println(tmp - '0');
 
   menu.last_slidingpage = menu.slidingpage;
+
   if (tmp - '0' == -6) {
     menu.slidingpage--;
     Serial.println(menu.slidingpage);
@@ -1026,6 +1027,13 @@ void loop() {
     menu.slidingpage++;
     Serial.println(menu.slidingpage);
   }
+
+  if (tmp - '0' == 18) {
+    menu.cursur--;
+  } else if (tmp - '0' == 19) {
+    menu.cursur++;
+  }
+  
   if (menu.slidingpage > 2) menu.slidingpage = 0;
   if (menu.slidingpage < 0) menu.slidingpage = 2;
   
