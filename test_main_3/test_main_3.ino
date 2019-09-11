@@ -334,8 +334,8 @@ class Menu {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:DRAIN");
-      lcd.setCursor(5, 2);
-      lcd.print("DRAIN....");
+      lcd.setCursor(1, 2);
+      lcd.print("PRESS ENT TO DRAIN");
       page = 4;
     }
     uint8_t runing(int _curcur) {
@@ -871,10 +871,10 @@ class Menu {
     }
     uint8_t drain() {
       lcd.clear();
-      lcd.setCursor(2, 0);
-      lcd.print("MENU: DRAIN");
-      lcd.setCursor(3, 2);
-      lcd.print("DRAING....");
+      lcd.setCursor(0, 0);
+      lcd.print("MENU:DRAIN");
+      lcd.setCursor(5, 2);
+      lcd.print("DRAIN....");
       char tmp;
       uint8_t state_run = 0;
       uint8_t val = 0;
@@ -894,6 +894,8 @@ class Menu {
           state_run = 1;
           for (uint8_t duty = 0 ; duty < 100 ; duty++) {
             tmp = keypads.getKey();
+            if (tmp - '0' == -6) break;
+            if (tmp - '0' == 20) break;
             if (digitalRead(run_bt)) {
               delay(frate * 5);
               break;
@@ -923,7 +925,6 @@ class Menu {
           delay(frate * 5);
         }
       }
-
       run_pwm(0);
       subpage = 3;
     }
@@ -1287,26 +1288,24 @@ void loop() {
 
   switch (menu.slidingpage) {
     case 0:
+      menu.menucursor();
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 2) menu.cursur = 2;
       break;
     case 1:
+      menu.menucursor();
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 3) menu.cursur = 3;
       break;
     case 2:
+      menu.menucursor();
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 3) menu.cursur = 3;
       break;
-    //    case 3:
-    //      if (menu.cursur < 0) menu.cursur = 0;
-    //      if (menu.cursur > 1) menu.cursur = 1;
-    //      break;
     default:
       break;
   }
-  menu.menucursor();
-
+  
   if (menu.last_slidingpage != menu.slidingpage) {
     switch (menu.slidingpage) {
       case 0: menu.main_page_1();
@@ -1327,6 +1326,9 @@ void loop() {
     menu.setups(menu.cursur);
   } else if (tmp - '0' == 20 and menu.slidingpage == 2) {
     menu.sim(menu.cursur);
+  } else if (tmp - '0' == 20 and menu.slidingpage == 3) {
+    menu.drain();
+    menu.main_page_4();
   }
   //  Serial.println(digitalRead(run_bt));
 
