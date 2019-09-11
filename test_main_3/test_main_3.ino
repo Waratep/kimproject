@@ -892,7 +892,7 @@ class Menu {
 
         if (!digitalRead(run_bt) and state_run == 0) {
           state_run = 1;
-          for (uint8_t duty = 0 ; duty < 100 ; duty++) {
+          for (uint8_t duty = 0 ; duty < 51 ; duty++) {
             tmp = keypads.getKey();
             if (tmp - '0' == -6) break;
             if (tmp - '0' == 20) break;
@@ -910,6 +910,7 @@ class Menu {
             lcd.print("%]");
             delay(frate * 5);
           }
+          while(!digitalRead(run_bt));
         }
         else if (digitalRead(run_bt) and state_run == 1) {
           state_run = 0;
