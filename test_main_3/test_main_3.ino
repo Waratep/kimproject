@@ -36,47 +36,45 @@ class Save {
   public:
     int saveList;
     int saveListEdit;
-    Save(){
+    Save() {
       index25_1   = 0;
       index25_2   = 16;
       index75_1   = 32;
       index75_2   = 48;
-      
+
       saveList     = 0;
       saveListEdit = 0;
     }
-    float saved(float data25,float data75){
-//      Serial.print(saveList);
-//      Serial.print(" : ");
+    float saved25(float data25, int indexlist) {
       uint8_t INT;
       uint8_t FLOAT;
       INT   = (uint8_t)(data25);
       FLOAT = (uint8_t)((data25 - INT) * 100);
-      EEPROM.write(index25_1 + saveList,INT);
-      EEPROM.write(index25_2 + saveList,FLOAT);
-//      Serial.print(INT);
-//      Serial.print(" : ");
-//      Serial.println(FLOAT);
-
-      INT   = (uint8_t)(data75);
-      FLOAT = (uint8_t)(data75 - INT) * 100;
-      EEPROM.write(index75_1 + saveList,data75);
-      EEPROM.write(index75_2 + saveList,data75);
-//      Serial.print(INT);
-//      Serial.print(" : ");
-//      Serial.println(FLOAT);
+      EEPROM.write(index25_1 + indexlist, INT);
+      EEPROM.write(index25_2 + indexlist, FLOAT);
 
       EEPROM.commit();
 
-//      Serial.print(EEPROM.read(index25_1) + (float)EEPROM.read(index25_2)/100);
-//      Serial.print(" <> ");
-//      Serial.println(EEPROM.read(index75_1) + (float)EEPROM.read(index75_2)/100);
     }
-    float load25(){
-      return (EEPROM.read(index25_1 + saveList) + (float)EEPROM.read(index25_2 + saveList)/100);
+    float saved75(float data75, int indexlist) {
+      uint8_t INT;
+      uint8_t FLOAT;
+      INT   = (uint8_t)(data75);
+      FLOAT = (uint8_t)(data75 - INT) * 100;
+      EEPROM.write(index75_1 + indexlist, data75);
+      EEPROM.write(index75_2 + indexlist, data75);
+
+      EEPROM.commit();
+
     }
-    float load75(){
-      return (EEPROM.read(index75_1 + saveList) + (float)EEPROM.read(index75_2 + saveList)/100);
+    float get25() {
+      return (EEPROM.read(index25_1 + saveList) + (float)EEPROM.read(index25_2 + saveList) / 100);
+    }
+    float load25(int index) {
+      return (EEPROM.read(index25_1 + index) + (float)EEPROM.read(index25_2 + index) / 100);
+    }
+    float load75(int index) {
+      return (EEPROM.read(index75_1 + index) + (float)EEPROM.read(index75_2 + index) / 100);
     }
 };
 
@@ -122,22 +120,22 @@ class Data {
     float set_simfeed(float simfeed) {
       _simfeed = simfeed;
     }
-    float get_rate(){
+    float get_rate() {
       return _rate;
     }
-    float set_rate(float rate){
+    float set_rate(float rate) {
       _rate = rate;
     }
-    float get_speed(){
+    float get_speed() {
       return _speed;
     }
-    float set_speed(float speed){
+    float set_speed(float speed) {
       _speed = speed;
     }
-    float get_width(){
+    float get_width() {
       return _width;
     }
-    float set_width(float width){
+    float set_width(float width) {
       _width = width;
     }
 
@@ -239,9 +237,9 @@ class Menu {
       lcd.setCursor(0, 3);
       lcd.print("PROGRAM[ ]");
       lcd.setCursor(8, 3);
-      lcd.print(save.saveList);     
+      lcd.print(save.saveList);
       lcd.setCursor(11, 3);
-      lcd.print(save.load25()); 
+      lcd.print(save.get25());
       page = 3;
     }
     void main_page_3() {
@@ -273,8 +271,8 @@ class Menu {
       lcd.print("PRESS ENT TO DRAIN");
       page = 4;
     }
-    void main_subpage_2(int whocall){
-      if (whocall == 0){
+    void main_subpage_2(int whocall) {
+      if (whocall == 0) {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("MENU:SETUP");
@@ -282,14 +280,14 @@ class Menu {
         lcd.print("PROGRAM EDIT : ");
         lcd.print("    ");
         lcd.setCursor(15, 1);
-        lcd.print(save.saveListEdit);  
+        lcd.print(save.saveListEdit);
         lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
-      }else if(whocall == 1){
+      } else if (whocall == 1) {
         lcd.setCursor(15, 1);
         lcd.print("    ");
         lcd.setCursor(15, 1);
-        lcd.print(save.saveListEdit);  
+        lcd.print(save.saveListEdit);
       }
       page = 3;
     }
@@ -392,7 +390,7 @@ class Menu {
       lcd.print("VEL  : ");
       lcd.print(datas.get_simspeed());
       lcd.setCursor(15, 1);
-      lcd.print("km/h"); 
+      lcd.print("km/h");
       lcd.setCursor(0, 2);
       lcd.print("PWM  : ");
       lcd.print(datas.get_simpwm());
@@ -403,7 +401,7 @@ class Menu {
       lcd.print(datas.get_simfeed());
       lcd.setCursor(15, 3);
       lcd.print("kg/r");
-      
+
       uint8_t cursur = _curcur;
       char tmp;
 
@@ -512,7 +510,7 @@ class Menu {
     }
     uint8_t setups(int _curcur) {
       lcd.clear();
-      if (_curcur >= 0 and _curcur <= 3){
+      if (_curcur >= 0 and _curcur <= 3) {
         lcd.setCursor(0, 0);
         lcd.print("MENU:SETUP");
         lcd.setCursor(0, 1);
@@ -528,23 +526,23 @@ class Menu {
         lcd.setCursor(0, 3);
         lcd.print("PROGRAM[ ]");
         lcd.setCursor(8, 3);
-        lcd.print(save.saveList);  
+        lcd.print(save.saveList);
         lcd.setCursor(11, 3);
-        lcd.print(save.load25());        
-      }else if(_curcur >= 4 and _curcur <= 5){
+        lcd.print(save.get25());
+      } else if (_curcur >= 4 and _curcur <= 5) {
         lcd.setCursor(0, 0);
         lcd.print("MENU:SETUP");
         lcd.setCursor(0, 1);
         lcd.print("PROGRAM EDIT : ");
         lcd.print("    ");
         lcd.setCursor(15, 1);
-        lcd.print(save.saveList);  
+        lcd.print(save.saveList);
         lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
       }
       uint8_t cursur = _curcur;
       char tmp;
-      while (1){
+      while (1) {
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -557,11 +555,11 @@ class Menu {
         clearCursor();
         lcd.setCursor(19, cursur);
         lcd.print("<");
-        if (_curcur == 1){
+        if (_curcur == 1) {
           float feed;
           char tmp = keypads.getKey();
           float val = 0 , counter = 0;
-          while (tmp - '0' != 20){
+          while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
             if (tmp and tmp - '0' != 20) {
@@ -582,11 +580,11 @@ class Menu {
           datas.set_rate(val / 10);
           break;
         }
-        else if (_curcur == 2){
+        else if (_curcur == 2) {
           float feed;
           char tmp = keypads.getKey();
           float val = 0 , counter = 0;
-          while (tmp - '0' != 20){
+          while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
             if (tmp and tmp - '0' != 20) {
@@ -606,22 +604,94 @@ class Menu {
           }
           datas.set_width(val / 10);
           break;
-        } 
-        else if (_curcur == 3){
+        }
+        else if (_curcur == 3) {
           Serial.println("saved!");
-          save.saved(11.5,22.3);
           lcd.setCursor(8, 3);
-          lcd.print(save.saveList); 
+          lcd.print(save.saveList);
           lcd.setCursor(11, 3);
-          lcd.print(save.load25()); 
-          Serial.println(save.load25());
+          lcd.print(save.get25());
+          Serial.println(save.get25());
           break;
         }
-        else if (_curcur == 4){
-        
+        else if (_curcur == 4) {
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("MENU:PROGRAM EDIT");
+          lcd.setCursor(0, 1);
+          lcd.print("CAL@25 : ");
+          lcd.print(save.load25(save.saveListEdit));
+          lcd.setCursor(0, 2);
+          lcd.print("CAL@75 : ");
+          lcd.print(save.load75(save.saveListEdit));
+          cursur = 0;
+          while (1) {
+            delay(frate);
+            tmp = keypads.getKey();
+            if (tmp - '0' == 18) {
+              cursur--;
+            } else if (tmp - '0' == 19) {
+              cursur++;
+            }
+            if (tmp - '0' == -6) break;
+            cursur = cursur >= 2 ? 2 : cursur;
+            cursur = cursur <= 0 ? 1 : cursur;
+            clearCursor();
+            lcd.setCursor(19, cursur);
+            lcd.print("<");
+            if (cursur == 1 and tmp - '0' == 20) {
+              char tmp = keypads.getKey();
+              float val = 0 , counter = 0;
+              while (tmp - '0' != 20) {
+                delay(frate);
+                tmp = keypads.getKey();
+                if (tmp and tmp - '0' != 20) {
+                  if (counter == 0) val += (tmp - '0') * 1000;
+                  if (counter == 1) val += (tmp - '0') * 100;
+                  if (counter == 2) val += (tmp - '0') * 10;
+                  if (counter == 3) val += (tmp - '0') * 1;
+                  counter++;
+                }
+                lcd.setCursor(9, 1);
+                lcd.print("        ");
+                lcd.setCursor(9, 1);
+                lcd.print(val / 10);
+              }
+              save.saved25(val / 10, save.saveListEdit);
+            } else if (cursur == 2 and tmp - '0' == 20) {
+              char tmp = keypads.getKey();
+              float val = 0 , counter = 0;
+              while (tmp - '0' != 20) {
+                delay(frate);
+                tmp = keypads.getKey();
+                if (tmp and tmp - '0' != 20) {
+                  if (counter == 0) val += (tmp - '0') * 1000;
+                  if (counter == 1) val += (tmp - '0') * 100;
+                  if (counter == 2) val += (tmp - '0') * 10;
+                  if (counter == 3) val += (tmp - '0') * 1;
+                  counter++;
+                }
+                lcd.setCursor(9, 2);
+                lcd.print("        ");
+                lcd.setCursor(9, 2);
+                lcd.print(val / 10);
+              }
+              save.saved75(val / 10, save.saveListEdit);
+            }
+          }
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("MENU:SETUP");
+          lcd.setCursor(0, 1);
+          lcd.print("PROGRAM EDIT : ");
+          lcd.print("    ");
+          lcd.setCursor(15, 1);
+          lcd.print(save.saveListEdit);
+          lcd.setCursor(0, 2);
+          lcd.print("ABOUT ME");
           break;
         }
-        else if (_curcur == 5){
+        else if (_curcur == 5) {
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("MENU:ABOUT ME");
@@ -631,8 +701,8 @@ class Menu {
           lcd.print("KMITL");
           lcd.setCursor(0, 3);
           lcd.print("ETC.");
-          
-          while (keypads.getKey() - '0' != -6){
+
+          while (keypads.getKey() - '0' != -6) {
           }
           lcd.clear();
           lcd.setCursor(0, 0);
@@ -641,7 +711,7 @@ class Menu {
           lcd.print("PROGRAM EDIT : ");
           lcd.print("    ");
           lcd.setCursor(15, 1);
-          lcd.print(save.saveList);  
+          lcd.print(save.saveList);
           lcd.setCursor(0, 2);
           lcd.print("ABOUT ME");
           break;
@@ -652,13 +722,13 @@ class Menu {
         delay(frate);
       }
     }
-    uint8_t subpage_setup(int _curcur){
+    uint8_t subpage_setup(int _curcur) {
       lcd.setCursor(8, 3);
-      lcd.print(save.saveList); 
+      lcd.print(save.saveList);
       lcd.setCursor(11, 3);
-      lcd.print(save.load25()); 
-      Serial.println(save.load25());
-          
+      lcd.print(save.get25());
+      Serial.println(save.get25());
+
     }
     uint8_t drain() {
       lcd.clear();
@@ -701,7 +771,7 @@ class Menu {
             lcd.print("%]");
             delay(frate * 5);
           }
-          while(!digitalRead(run_bt));
+          while (!digitalRead(run_bt));
         }
         else if (digitalRead(run_bt) and state_run == 1) {
           state_run = 0;
@@ -745,7 +815,7 @@ void setup() {
 
   lcd.begin();
   EEPROM.begin(eepromsize);
-  for(int i = 0; i < 64; i++) EEPROM.write(i,0);
+  //  for(int i = 0; i < 64; i++) EEPROM.write(i,0);
   pinMode(run_bt, INPUT);
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
@@ -765,34 +835,34 @@ void loop() {
   char tmp = keypads.getKey();
   menu.last_slidingpage = menu.slidingpage;
   menu.lastsubpage      = menu.subpage;
-  switch (tmp - '0'){
-    case -6  : 
-      if (menu.slidingpage == 1 and menu.cursur == 3){
+  switch (tmp - '0') {
+    case -6  :
+      if (menu.slidingpage == 1 and menu.cursur == 3) {
         save.saveList--;
         if (save.saveList < 0) save.saveList = 0;
-        menu.subpage_setup(save.saveListEdit);               
-      }else if(menu.slidingpage == 1 and menu.cursur == 4){
+        menu.subpage_setup(save.saveListEdit);
+      } else if (menu.slidingpage == 1 and menu.cursur == 4) {
         save.saveListEdit--;
         if (save.saveListEdit < 0) save.saveListEdit = 0;
         menu.main_subpage_2(1);
-      }else{
-        menu.slidingpage--; 
+      } else {
+        menu.slidingpage--;
       }
 
-    break;
-    case -13 : 
-      if (menu.slidingpage == 1 and menu.cursur == 3){
+      break;
+    case -13 :
+      if (menu.slidingpage == 1 and menu.cursur == 3) {
         save.saveList++;
         if (save.saveList > 9) save.saveList = 9;
-        menu.subpage_setup(save.saveList); 
-      }else if(menu.slidingpage == 1 and menu.cursur == 4){
+        menu.subpage_setup(save.saveList);
+      } else if (menu.slidingpage == 1 and menu.cursur == 4) {
         save.saveListEdit++;
         if (save.saveListEdit > 9) save.saveListEdit = 9;
         menu.main_subpage_2(1);
-      }else{
-        menu.slidingpage++; 
+      } else {
+        menu.slidingpage++;
       }
-    break;
+      break;
     case  18 : menu.cursur--;      break;
     case  19 : menu.cursur++;      break;
     default  :                     break;
@@ -821,13 +891,13 @@ void loop() {
     default:
       break;
   }
-  
+
   if ((menu.last_slidingpage != menu.slidingpage) or (menu.subpage != menu.lastsubpage)) {
     switch (menu.slidingpage) {
       case 0: menu.main_page_1();
         break;
-      case 1: 
-        switch (menu.subpage){
+      case 1:
+        switch (menu.subpage) {
           case 0 : menu.main_page_2();     break;
           case 1 : menu.main_subpage_2(0); break;
           default:                         break;
@@ -841,7 +911,7 @@ void loop() {
         break;
     }
   }
-  
+
   if (tmp - '0' == 20 and menu.slidingpage == 0) {
     menu.runing(menu.cursur);
   } else if (tmp - '0' == 20 and menu.slidingpage == 1) {
