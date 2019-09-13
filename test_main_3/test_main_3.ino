@@ -1,8 +1,18 @@
+#include <string.h>
+#include <ctype.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 #include <Keypad.h>
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+int byteGPS        = -1;
+char linea[300]    = "";
+char comandoGPR[7] = "$GPRMC";
+int cont  = 0;
+int bien  = 0;
+int conta = 0;
+int indices[13];
 
 #define run_bt 34
 #define red 23
@@ -365,28 +375,28 @@ class Menu {
         }
         else if (_curcur == 2)
         {
-//          float feed;
-//          char tmp = keypads.getKey();
-//          float val = 0 , counter = 0;
-//          while (tmp - '0' != 20)
-//          {
-//            delay(frate);
-//            tmp = keypads.getKey();
-//            if (tmp and tmp - '0' != 20) {
-//              if (counter == 0) val += (tmp - '0') * 1000;
-//              if (counter == 1) val += (tmp - '0') * 100;
-//              if (counter == 2) val += (tmp - '0') * 10;
-//              if (counter == 3) val += (tmp - '0') * 1;
-//              counter++;
-//            }
-//            lcd.setCursor(0, 2);
-//            lcd.print("VEL  : ");
-//            lcd.print("        ");
-//            lcd.setCursor(7, 2);
-//            lcd.print(val / 10);
-//            lcd.setCursor(15, 2);
-//            lcd.print("km/h");
-//          }
+          //          float feed;
+          //          char tmp = keypads.getKey();
+          //          float val = 0 , counter = 0;
+          //          while (tmp - '0' != 20)
+          //          {
+          //            delay(frate);
+          //            tmp = keypads.getKey();
+          //            if (tmp and tmp - '0' != 20) {
+          //              if (counter == 0) val += (tmp - '0') * 1000;
+          //              if (counter == 1) val += (tmp - '0') * 100;
+          //              if (counter == 2) val += (tmp - '0') * 10;
+          //              if (counter == 3) val += (tmp - '0') * 1;
+          //              counter++;
+          //            }
+          //            lcd.setCursor(0, 2);
+          //            lcd.print("VEL  : ");
+          //            lcd.print("        ");
+          //            lcd.setCursor(7, 2);
+          //            lcd.print(val / 10);
+          //            lcd.setCursor(15, 2);
+          //            lcd.print("km/h");
+          //          }
           break;
         }
         if ((tmp - '0' == -6) or (tmp - '0' == 20)) {
@@ -826,7 +836,9 @@ Menu menu;
 void setup() {
 
   Serial.begin(115200);
-  Serial2.begin(38400,SERIAL_8N1,16,17);
+
+  Serial2.begin(38400, SERIAL_8N1, 16, 17);
+  for (int i = 0; i < 300; i++) linea[i] = ' ';
 
   lcd.begin();
   EEPROM.begin(eepromsize);
@@ -905,7 +917,7 @@ void loop() {
         state_run = 0;
         Serial.println("not run pwm");
       }
-      
+
       break;
     case 1:
       if (menu.cursur < 0) menu.cursur = 0;
@@ -919,7 +931,7 @@ void loop() {
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 3) menu.cursur = 3;
       menu.menucursor();
-      
+
       if (digitalRead(run_bt) and state_run == 0) {
         float slope = 0.02 * (datas.get_cal75() - datas.get_cal25());
         float offset = datas.get_cal25() - (25 * slope);
@@ -980,15 +992,26 @@ void taskTwo( void * parameter ) {
       String s = Serial2.readStringUntil('\n');
       if (s.startsWith("$GPRMC")) {
         int posHeader = s.indexOf("$GPRMC");
-        if (posHeader == 0) { 
+        if (posHeader == 0) { // Got "$GPRMC"
           if (s.length() >= 69) {
             s.trim();
-            Serial.println(s);
-            int posHour = s.indexOf(',');
-            Serial.println(posHour);
-            gpsHour = s.substring(posHour + 1, posHour + 3); 
-            Serial.print("GPS Hour: ");
-            Serial.println(gpsHour);
+            int counter = 0;
+            String vel  = "";
+            float  vel_float = 0;
+            for (int i = 0 ; i < s.length() ; i++){
+              if(s[i] == ',') counter++;
+              if(counter >=7  and counter < 8){
+                if(s[i] != ',') vel += s[i];
+              }
+              Serial.print(s[i]);
+            }
+            Serial.println();
+            if (vel == "") {
+              vel_float = -1;
+            }else{
+              vel_float = vel.toFloat();
+            }
+            Serial.println(vel_float);
             gpsActive = 1;
           }
           else {
@@ -1002,7 +1025,7 @@ void taskTwo( void * parameter ) {
         digitalWrite(red,HIGH);
       }else{
         digitalWrite(blue,HIGH);
-        digitalWrite(red,LOW);
+        digitalWrite(red,LOW);        
       }
     }
     vTaskDelay(100);
