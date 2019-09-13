@@ -826,7 +826,7 @@ Menu menu;
 void setup() {
 
   Serial.begin(115200);
-  Serial2.begin(38400,SERIAL_8N1,16,17);
+  Serial2.begin(38400);
 
   lcd.begin();
   EEPROM.begin(eepromsize);
@@ -913,7 +913,6 @@ void loop() {
       if (menu.cursur >= 0 and menu.cursur <= 3) menu.subpage = 0;
       if (menu.cursur >= 4 and menu.cursur <= 5) menu.subpage = 1;
       menu.menucursor();
-      menu.run_pwm(0);
       break;
     case 2:
       if (menu.cursur < 0) menu.cursur = 0;
@@ -980,20 +979,25 @@ void taskTwo( void * parameter ) {
       String s = Serial2.readStringUntil('\n');
       if (s.startsWith("$GPRMC")) {
         int posHeader = s.indexOf("$GPRMC");
-        if (posHeader == 0) { 
+        if (posHeader == 0) { // Got "$GPRMC"
+
           if (s.length() >= 69) {
+            //            Serial.println("That's a perfectly acceptable text message");
             s.trim();
-            Serial.println(s);
-            int posHour = s.indexOf(',');
-            Serial.println(posHour);
-            gpsHour = s.substring(posHour + 1, posHour + 3); 
-            Serial.print("GPS Hour: ");
-            Serial.println(gpsHour);
+            //            Serial.println(s);
+            int posHour = s.indexOf(',');// Get first occurance of comma ","
+            //            Serial.print("Position of First Comma: ");
+            //            Serial.println(posHour);
+
+            gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
+            //            Serial.print("GPS Hour: ");
+            //            Serial.println(gpsHour);
             gpsActive = 1;
           }
           else {
-            Serial.println(s);
+            //            Serial.println(s);
             gpsActive = 0;
+
           }
         }
       }
