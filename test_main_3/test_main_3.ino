@@ -41,45 +41,42 @@ class Save {
       index25_2   = 16;
       index75_1   = 32;
       index75_2   = 48;
-
-      savecouter   = 0;
+      
       saveList     = 0;
       saveListEdit = 0;
     }
-    uint8_t getList(){
-      return index25_1;
-    }
     float saved(float data25,float data75){
-      index25_1 = index25_1 + saveList;
-      index25_2 = index25_2 + saveList;
-      index75_1 = index75_1 + saveList;
-      index75_2 = index75_2 + saveList;
-      Serial.print(saveList);
-      Serial.print(" : ");
+//      Serial.print(saveList);
+//      Serial.print(" : ");
       uint8_t INT;
       uint8_t FLOAT;
       INT   = (uint8_t)(data25);
       FLOAT = (uint8_t)((data25 - INT) * 100);
-      EEPROM.write(index25_1,INT);
-      EEPROM.write(index25_2,FLOAT);
-      Serial.print(INT);
-      Serial.print(" : ");
-      Serial.println(FLOAT);
+      EEPROM.write(index25_1 + saveList,INT);
+      EEPROM.write(index25_2 + saveList,FLOAT);
+//      Serial.print(INT);
+//      Serial.print(" : ");
+//      Serial.println(FLOAT);
 
-      
       INT   = (uint8_t)(data75);
       FLOAT = (uint8_t)(data75 - INT) * 100;
-      EEPROM.write(index75_1,data75);
-      EEPROM.write(index75_2,data75);
-      Serial.print(INT);
-      Serial.print(" : ");
-      Serial.println(FLOAT);
+      EEPROM.write(index75_1 + saveList,data75);
+      EEPROM.write(index75_2 + saveList,data75);
+//      Serial.print(INT);
+//      Serial.print(" : ");
+//      Serial.println(FLOAT);
 
       EEPROM.commit();
 
-      Serial.print(EEPROM.read(index25_1) + (float)EEPROM.read(index25_2)/100);
-      Serial.print(" <> ");
-      Serial.println(EEPROM.read(index75_1) + (float)EEPROM.read(index75_2)/100);
+//      Serial.print(EEPROM.read(index25_1) + (float)EEPROM.read(index25_2)/100);
+//      Serial.print(" <> ");
+//      Serial.println(EEPROM.read(index75_1) + (float)EEPROM.read(index75_2)/100);
+    }
+    float load25(){
+      return (EEPROM.read(index25_1 + saveList) + (float)EEPROM.read(index25_2 + saveList)/100);
+    }
+    float load75(){
+      return (EEPROM.read(index75_1 + saveList) + (float)EEPROM.read(index75_2 + saveList)/100);
     }
 };
 
@@ -240,11 +237,11 @@ class Menu {
       lcd.setCursor(15, 2);
       lcd.print("m");
       lcd.setCursor(0, 3);
-      lcd.print("PROGRAM : ");
-      lcd.setCursor(10, 3);
-      lcd.print("         ");
-      lcd.setCursor(10, 3);
+      lcd.print("PROGRAM[ ]");
+      lcd.setCursor(8, 3);
       lcd.print(save.saveList);     
+      lcd.setCursor(11, 3);
+      lcd.print(save.load25()); 
       page = 3;
     }
     void main_page_3() {
@@ -269,8 +266,6 @@ class Menu {
       page = 4;
     }
     void main_page_4() {
-      
-      
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:DRAIN");
@@ -286,14 +281,14 @@ class Menu {
         lcd.setCursor(0, 1);
         lcd.print("PROGRAM EDIT : ");
         lcd.print("    ");
-        lcd.setCursor(17, 1);
+        lcd.setCursor(15, 1);
         lcd.print(save.saveListEdit);  
         lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
       }else if(whocall == 1){
-        lcd.setCursor(17, 1);
+        lcd.setCursor(15, 1);
         lcd.print("    ");
-        lcd.setCursor(17, 1);
+        lcd.setCursor(15, 1);
         lcd.print(save.saveListEdit);  
       }
       page = 3;
@@ -531,18 +526,18 @@ class Menu {
         lcd.setCursor(15, 2);
         lcd.print("m");
         lcd.setCursor(0, 3);
-        lcd.print("PROGRAM : ");
-        lcd.setCursor(10, 3);
-        lcd.print("         ");
-        lcd.setCursor(10, 3);
-        lcd.print(save.saveList);      
+        lcd.print("PROGRAM[ ]");
+        lcd.setCursor(8, 3);
+        lcd.print(save.saveList);  
+        lcd.setCursor(11, 3);
+        lcd.print(save.load25());        
       }else if(_curcur >= 4 and _curcur <= 5){
         lcd.setCursor(0, 0);
         lcd.print("MENU:SETUP");
         lcd.setCursor(0, 1);
         lcd.print("PROGRAM EDIT : ");
         lcd.print("    ");
-        lcd.setCursor(17, 1);
+        lcd.setCursor(15, 1);
         lcd.print(save.saveList);  
         lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
@@ -613,7 +608,13 @@ class Menu {
           break;
         } 
         else if (_curcur == 3){
-          save.saved(10.5,20.3);
+          Serial.println("saved!");
+          save.saved(11.5,22.3);
+          lcd.setCursor(8, 3);
+          lcd.print(save.saveList); 
+          lcd.setCursor(11, 3);
+          lcd.print(save.load25()); 
+          Serial.println(save.load25());
           break;
         }
         else if (_curcur == 4){
@@ -639,7 +640,7 @@ class Menu {
           lcd.setCursor(0, 1);
           lcd.print("PROGRAM EDIT : ");
           lcd.print("    ");
-          lcd.setCursor(17, 1);
+          lcd.setCursor(15, 1);
           lcd.print(save.saveList);  
           lcd.setCursor(0, 2);
           lcd.print("ABOUT ME");
@@ -652,12 +653,12 @@ class Menu {
       }
     }
     uint8_t subpage_setup(int _curcur){
-      lcd.setCursor(0, 3);
-      lcd.print("PROGRAM : ");
-      lcd.setCursor(10, 3);
-      lcd.print("         ");
-      lcd.setCursor(10, 3);
-      lcd.print(save.saveList);
+      lcd.setCursor(8, 3);
+      lcd.print(save.saveList); 
+      lcd.setCursor(11, 3);
+      lcd.print(save.load25()); 
+      Serial.println(save.load25());
+          
     }
     uint8_t drain() {
       lcd.clear();
@@ -744,7 +745,7 @@ void setup() {
 
   lcd.begin();
   EEPROM.begin(eepromsize);
-
+  for(int i = 0; i < 64; i++) EEPROM.write(i,0);
   pinMode(run_bt, INPUT);
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
