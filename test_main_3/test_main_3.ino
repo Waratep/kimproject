@@ -88,11 +88,14 @@ class Data {
     float _width;
     float _simfeed;
     uint8_t _simpwm;
-
+    float _cal25;
+    float _cal75;
 
   public:
     Data()
     {
+      _cal25 = 0;
+      _cal75 = 0;
       _rate  = 0;
       _speed = 0;
       _width = 0;
@@ -101,7 +104,18 @@ class Data {
       _simpwm   = 0;
       _simfeed  = 0;
     }
-
+    float get_cal25() {
+      return _cal25;
+    }
+    float get_cal75() {
+      return _cal75;
+    }
+    float set_cal25(float _cal) {
+      _cal25 = _cal;
+    }
+    float set_cal75(float _cal) {
+      _cal75 = _cal;
+    }
     float get_simspeed() {
       return _simspeed;
     }
@@ -351,28 +365,28 @@ class Menu {
         }
         else if (_curcur == 2)
         {
-          float feed;
-          char tmp = keypads.getKey();
-          float val = 0 , counter = 0;
-          while (tmp - '0' != 20)
-          {
-            delay(frate);
-            tmp = keypads.getKey();
-            if (tmp and tmp - '0' != 20) {
-              if (counter == 0) val += (tmp - '0') * 1000;
-              if (counter == 1) val += (tmp - '0') * 100;
-              if (counter == 2) val += (tmp - '0') * 10;
-              if (counter == 3) val += (tmp - '0') * 1;
-              counter++;
-            }
-            lcd.setCursor(0, 2);
-            lcd.print("VEL  : ");
-            lcd.print("        ");
-            lcd.setCursor(7, 2);
-            lcd.print(val / 10);
-            lcd.setCursor(15, 2);
-            lcd.print("km/h");
-          }
+//          float feed;
+//          char tmp = keypads.getKey();
+//          float val = 0 , counter = 0;
+//          while (tmp - '0' != 20)
+//          {
+//            delay(frate);
+//            tmp = keypads.getKey();
+//            if (tmp and tmp - '0' != 20) {
+//              if (counter == 0) val += (tmp - '0') * 1000;
+//              if (counter == 1) val += (tmp - '0') * 100;
+//              if (counter == 2) val += (tmp - '0') * 10;
+//              if (counter == 3) val += (tmp - '0') * 1;
+//              counter++;
+//            }
+//            lcd.setCursor(0, 2);
+//            lcd.print("VEL  : ");
+//            lcd.print("        ");
+//            lcd.setCursor(7, 2);
+//            lcd.print(val / 10);
+//            lcd.setCursor(15, 2);
+//            lcd.print("km/h");
+//          }
           break;
         }
         if ((tmp - '0' == -6) or (tmp - '0' == 20)) {
@@ -611,7 +625,8 @@ class Menu {
           lcd.print(save.saveList);
           lcd.setCursor(11, 3);
           lcd.print(save.get25());
-          Serial.println(save.get25());
+          datas.set_cal25(save.load25(save.saveList));
+          datas.set_cal75(save.load75(save.saveList));
           break;
         }
         else if (_curcur == 4) {
@@ -820,13 +835,13 @@ void setup() {
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
 
-  //  xTaskCreate(
-  //    taskTwo,          /* Task function. */
-  //    "TaskTwo",        /* String with name of task. */
-  //    20000,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    1,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
+  xTaskCreate(
+    taskTwo,          /* Task function. */
+    "TaskTwo",        /* String with name of task. */
+    20000,            /* Stack size in bytes. */
+    NULL,             /* Parameter passed as input of the task */
+    1,                /* Priority of the task. */
+    NULL);            /* Task handle. */
   menu.main_page_1();
 }
 
@@ -875,6 +890,22 @@ void loop() {
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 2) menu.cursur = 2;
       menu.menucursor();
+
+      if (!digitalRead(run_bt) and state_run == 0) {
+        float slope = 0.02 * (datas.get_cal75() - datas.get_cal25());
+        float offset = datas.get_cal25() - (25 * slope);
+        float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
+        float pwm = slope * feed - offset;
+        menu.run_pwm(pwm);
+        state_run = 1;
+        Serial.println(state_run);
+      }
+      else if (digitalRead(run_bt) and state_run == 1) {
+        menu.run_pwm(0);
+        state_run = 0;
+        Serial.println(state_run);
+      }
+      
       break;
     case 1:
       if (menu.cursur < 0) menu.cursur = 0;
@@ -887,6 +918,22 @@ void loop() {
       if (menu.cursur < 0) menu.cursur = 0;
       if (menu.cursur > 3) menu.cursur = 3;
       menu.menucursor();
+      
+      if (!digitalRead(run_bt) and state_run == 0) {
+        float slope = 0.02 * (datas.get_cal75() - datas.get_cal25());
+        float offset = datas.get_cal25() - (25 * slope);
+        float feed = datas.get_rate() * datas.get_width() * datas.get_speed() / 5.76;
+        float pwm = slope * feed - offset;
+        menu.run_pwm(pwm);
+        state_run = 1;
+        Serial.println(state_run);
+      }
+      else if (digitalRead(run_bt) and state_run == 1) {
+        menu.run_pwm(0);
+        state_run = 0;
+        Serial.println(state_run);
+      }
+      
       break;
     default:
       break;
@@ -923,56 +970,46 @@ void loop() {
     menu.main_page_4();
   }
 
-
-  //  Serial.println(digitalRead(run_bt));
-  //  if (!digitalRead(run_bt) and state_run == 0) {
-  //    state_run = 1;
-  //    menu.run_pwm(menu.calculator());
-  //  }
-  //  else if (digitalRead(run_bt) and state_run == 1) {
-  //    state_run = 0;
-  //    menu.run_pwm(0);
-  //  }
   delay(frate);
 }
 
-//void taskTwo( void * parameter ) {
-//  while (1) {
-//    if (Serial2.available()) {
-//      String s = Serial2.readStringUntil('\n');
-//      if (s.startsWith("$GPRMC")) {
-//        int posHeader = s.indexOf("$GPRMC");
-//        if (posHeader == 0) { // Got "$GPRMC"
-//
-//          if (s.length() >= 69) {
-//            //            Serial.println("That's a perfectly acceptable text message");
-//            s.trim();
-//            //            Serial.println(s);
-//            int posHour = s.indexOf(',');// Get first occurance of comma ","
-//            //            Serial.print("Position of First Comma: ");
-//            //            Serial.println(posHour);
-//
-//            gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
-//            //            Serial.print("GPS Hour: ");
-//            //            Serial.println(gpsHour);
-//            gpsActive = 1;
-//          }
-//          else {
-//            //            Serial.println(s);
-//            gpsActive = 0;
-//
-//          }
-//        }
-//      }
-//      if (gpsActive){
-//        digitalWrite(blue,LOW);
-//        digitalWrite(red,HIGH);
-//      }else{
-//        digitalWrite(blue,HIGH);
-//        digitalWrite(red,LOW);
-//      }
-//    }
-//    vTaskDelay(100);
-//  }
-//  vTaskDelete( NULL );
-//}
+void taskTwo( void * parameter ) {
+  while (1) {
+    if (Serial2.available()) {
+      String s = Serial2.readStringUntil('\n');
+      if (s.startsWith("$GPRMC")) {
+        int posHeader = s.indexOf("$GPRMC");
+        if (posHeader == 0) { // Got "$GPRMC"
+
+          if (s.length() >= 69) {
+            //            Serial.println("That's a perfectly acceptable text message");
+            s.trim();
+            //            Serial.println(s);
+            int posHour = s.indexOf(',');// Get first occurance of comma ","
+            //            Serial.print("Position of First Comma: ");
+            //            Serial.println(posHour);
+
+            gpsHour = s.substring(posHour + 1, posHour + 3); // Get GPS Hours from String
+            //            Serial.print("GPS Hour: ");
+            //            Serial.println(gpsHour);
+            gpsActive = 1;
+          }
+          else {
+            //            Serial.println(s);
+            gpsActive = 0;
+
+          }
+        }
+      }
+      if (gpsActive){
+        digitalWrite(blue,LOW);
+        digitalWrite(red,HIGH);
+      }else{
+        digitalWrite(blue,HIGH);
+        digitalWrite(red,LOW);
+      }
+    }
+    vTaskDelay(100);
+  }
+  vTaskDelete( NULL );
+}
