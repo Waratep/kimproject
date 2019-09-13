@@ -993,7 +993,7 @@ void taskTwo( void * parameter ) {
       if (s.startsWith("$GPRMC")) {
         int posHeader = s.indexOf("$GPRMC");
         if (posHeader == 0) { // Got "$GPRMC"
-          if (s.length() >= 69) {
+//          if (s.length() >= 69) {
             s.trim();
             int counter = 0;
             String vel  = "";
@@ -1009,17 +1009,18 @@ void taskTwo( void * parameter ) {
             if (vel == "") {
               vel_float = -1;
             }else{
-              vel_float = vel.toFloat();
+              vel_float = vel.toFloat() * 1.852;
             }
+            datas.set_speed(vel_float);
             Serial.println(vel_float);
             gpsActive = 1;
           }
-          else {
-            Serial.println(s);
-            gpsActive = 0;
-          }
+//          else {
+//            Serial.println(s);
+//            gpsActive = 0;
+//          }
         }
-      }
+//      }
       if (gpsActive){
         digitalWrite(blue,LOW);
         digitalWrite(red,HIGH);
