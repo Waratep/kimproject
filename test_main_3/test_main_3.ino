@@ -6,14 +6,12 @@
 #include <Keypad.h>
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-int byteGPS        = -1;
-char linea[300]    = "";
-char comandoGPR[7] = "$GPRMC";
 int cont  = 0;
 int bien  = 0;
 int conta = 0;
 int indices[13];
 
+#define buzzer 2
 #define run_bt 34
 #define red 23
 #define blue 5
@@ -334,7 +332,11 @@ class Menu {
       char tmp;
 
       while (1) {
-        tmp = keypads.getKey();
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0);
+        } 
         if (tmp - '0' == 18) {
           cursur--;
         } else if (tmp - '0' == 19) {
@@ -355,6 +357,11 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0); 
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -430,7 +437,11 @@ class Menu {
       char tmp;
 
       while (1) {
-
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0); 
+        }
         tmp = keypads.getKey();
         if (tmp - '0' == 18) {
           cursur--;
@@ -452,6 +463,12 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+              
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -479,6 +496,11 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0); 
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -506,6 +528,11 @@ class Menu {
           {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -568,6 +595,11 @@ class Menu {
       char tmp;
       while (1) {
         tmp = keypads.getKey();
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0);
+        }
         if (tmp - '0' == 18) {
           cursur--;
         } else if (tmp - '0' == 19) {
@@ -586,6 +618,11 @@ class Menu {
           while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -611,6 +648,11 @@ class Menu {
           while (tmp - '0' != 20) {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
             if (tmp and tmp - '0' != 20) {
               if (counter == 0) val += (tmp - '0') * 1000;
               if (counter == 1) val += (tmp - '0') * 100;
@@ -653,6 +695,11 @@ class Menu {
           while (1) {
             delay(frate);
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0); 
+            }
             if (tmp - '0' == 18) {
               cursur--;
             } else if (tmp - '0' == 19) {
@@ -670,6 +717,11 @@ class Menu {
               while (tmp - '0' != 20) {
                 delay(frate);
                 tmp = keypads.getKey();
+                if(tmp) {
+                  digitalWrite(buzzer,1);
+                  delay(20);
+                  digitalWrite(buzzer,0); 
+                }
                 if (tmp and tmp - '0' != 20) {
                   if (counter == 0) val += (tmp - '0') * 1000;
                   if (counter == 1) val += (tmp - '0') * 100;
@@ -689,6 +741,11 @@ class Menu {
               while (tmp - '0' != 20) {
                 delay(frate);
                 tmp = keypads.getKey();
+                if(tmp) {
+                  digitalWrite(buzzer,1);
+                  delay(1);
+                  digitalWrite(buzzer,0); 
+                }
                 if (tmp and tmp - '0' != 20) {
                   if (counter == 0) val += (tmp - '0') * 1000;
                   if (counter == 1) val += (tmp - '0') * 100;
@@ -766,6 +823,12 @@ class Menu {
       uint8_t val = 0;
       while (1) {
         tmp = keypads.getKey();
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0);
+          
+        }
         if (tmp - '0' == -6) break;
         if (tmp - '0' == 20) break;
         lcd.clear();
@@ -780,6 +843,11 @@ class Menu {
           state_run = 1;
           for (uint8_t duty = 0 ; duty < 51 ; duty++) {
             tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
             if (tmp - '0' == -6) break;
             if (tmp - '0' == 20) break;
             if (digitalRead(run_bt)) {
@@ -836,9 +904,7 @@ Menu menu;
 void setup() {
 
   Serial.begin(115200);
-
   Serial2.begin(38400, SERIAL_8N1, 16, 17);
-  for (int i = 0; i < 300; i++) linea[i] = ' ';
 
   lcd.begin();
   EEPROM.begin(eepromsize);
@@ -846,6 +912,7 @@ void setup() {
   pinMode(run_bt, INPUT);
   pinMode(red, OUTPUT);
   pinMode(blue, OUTPUT);
+  pinMode(buzzer , OUTPUT);
 
   xTaskCreate(
     taskTwo,          /* Task function. */
@@ -860,6 +927,12 @@ void setup() {
 void loop() {
 
   char tmp = keypads.getKey();
+  if(tmp) {
+    digitalWrite(buzzer,1);
+    delay(20);
+    digitalWrite(buzzer,0);
+  }
+  
   menu.last_slidingpage = menu.slidingpage;
   menu.lastsubpage      = menu.subpage;
   switch (tmp - '0') {
@@ -1021,7 +1094,7 @@ void taskTwo( void * parameter ) {
 //          }
         }
 //      }
-      if (gpsActive){
+      if (datas.get_speed() != -1){
         digitalWrite(blue,LOW);
         digitalWrite(red,HIGH);
       }else{
