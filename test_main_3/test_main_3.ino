@@ -313,7 +313,7 @@ class Menu {
       }
       page = 3;
     }
-    uint8_t runing(int _curcur) {
+    uint8_t runing(int _curcur) { 
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("MENU:RUNNING");
@@ -332,6 +332,7 @@ class Menu {
       char tmp;
 
       while (1) {
+        tmp = keypads.getKey();
         if(tmp) {
           digitalWrite(buzzer,1);
           delay(20);
