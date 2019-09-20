@@ -502,10 +502,9 @@ class Menu {
               digitalWrite(buzzer,0); 
             }
             if (tmp and tmp - '0' != 20) {
-              if (counter == 0) val += (tmp - '0') * 1000;
-              if (counter == 1) val += (tmp - '0') * 100;
-              if (counter == 2) val += (tmp - '0') * 10;
-              if (counter == 3) val += (tmp - '0') * 1;
+              if (counter == 0) val += (tmp - '0') * 100;
+              if (counter == 1) val += (tmp - '0') * 10;
+              if (counter == 2) val += (tmp - '0') * 1;
               counter++;
             }
             lcd.setCursor(0, 2);
