@@ -5,7 +5,6 @@
 #include <EEPROM.h>
 #include <Keypad.h>
 LiquidCrystal_I2C lcd(0x27, 20, 4);
-
 int cont  = 0;
 int bien  = 0;
 int conta = 0;
@@ -814,11 +813,11 @@ class Menu {
 
     }
     uint8_t drain() {
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("MENU:DRAIN");
-      lcd.setCursor(5, 2);
-      lcd.print("DRAIN....");
+//      lcd.clear();
+//      lcd.setCursor(0, 0);
+//      lcd.print("MENU:DRAIN");
+//      lcd.setCursor(5, 2);
+//      lcd.print("DRAIN....");
       char tmp;
       uint8_t state_run = 0;
       uint8_t val = 0;
@@ -830,8 +829,18 @@ class Menu {
           digitalWrite(buzzer,0);
           
         }
-        if (tmp - '0' == -6) break;
+        if (tmp - '0' == -6) {
+          return 2;
+//          slidingpage--;
+//          break;
+        }
+        if (tmp - '0' == -13) {
+          return 3;
+//          slidingpage++;
+//          break;
+        }
         if (tmp - '0' == 20) break;
+//        menu.slidingpage
         lcd.clear();
         lcd.setCursor(2, 0);
         lcd.print("MENU: DRAIN");
@@ -929,6 +938,7 @@ void loop() {
 
   char tmp = keypads.getKey();
   if(tmp) {
+    Serial.println(tmp - '0');
     digitalWrite(buzzer,1);
     delay(20);
     digitalWrite(buzzer,0);
@@ -1052,9 +1062,14 @@ void loop() {
     menu.setups(menu.cursur);
   } else if (tmp - '0' == 20 and menu.slidingpage == 2) {
     menu.sim(menu.cursur);
-  } else if (tmp - '0' == 20 and menu.slidingpage == 3) {
-    menu.drain();
-    menu.main_page_4();
+  } else if (menu.slidingpage == 3) {
+    uint8_t tmp = menu.drain();
+    if(tmp == 2) {
+      menu.slidingpage--;
+      menu.main_page_3();
+    }
+    if(tmp == 3) menu.slidingpage++;
+//    menu.main_page_4();
   }
 
   delay(frate);
