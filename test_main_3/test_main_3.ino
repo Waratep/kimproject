@@ -506,16 +506,17 @@ class Menu {
               if (counter == 1) val += (tmp - '0') * 10;
               if (counter == 2) val += (tmp - '0') * 1;
               counter++;
+              if (val >= 1000) val = 1000;
             }
             lcd.setCursor(0, 2);
             lcd.print("PWM  : ");
             lcd.print("        ");
             lcd.setCursor(7, 2);
-            lcd.print(val / 10);
+            lcd.print(val/10);
             lcd.setCursor(15, 2);
             lcd.print("%");
           }
-          datas.set_simpwm(val / 10);
+          datas.set_simpwm(val/10);
           break;
         }
         else if (_curcur == 3)
