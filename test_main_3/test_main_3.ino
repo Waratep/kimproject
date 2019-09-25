@@ -297,21 +297,13 @@ class Menu {
     }
     void main_subpage_2(int whocall) {
       if (whocall == 0) {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("MENU:SETUP");
-        lcd.setCursor(0, 1);
-        lcd.print("PROGRAM EDIT : ");
-        lcd.print("    ");
-        lcd.setCursor(15, 1);
-        lcd.print(save.saveListEdit);
-        lcd.setCursor(0, 2);
-        lcd.print("ABOUT ME");
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("MENU:SETUP");
+      lcd.setCursor(0, 1);
+      lcd.print("ABOUT ME");
       } else if (whocall == 1) {
-        lcd.setCursor(15, 1);
-        lcd.print("    ");
-        lcd.setCursor(15, 1);
-        lcd.print(save.saveListEdit);
+
       }
       page = 3;
     }
@@ -562,6 +554,131 @@ class Menu {
       }
       subpage = 1;
     }
+    uint8_t popup_cal(uint8_t _cal){
+      
+    }
+    uint8_t program_calibration(int _curcur){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("PROGRAM[ ]");
+      lcd.setCursor(8, 0);
+      lcd.print(program_select);
+      lcd.setCursor(0, 1);
+      lcd.print("CAL@25 : ");
+      lcd.print(save.load25(save.saveListEdit));
+      lcd.setCursor(0, 2);
+      lcd.print("CAL@75 : ");
+      lcd.print(save.load75(save.saveListEdit));
+      lcd.setCursor(0, 3);
+      lcd.print("<USE> CANCEL  CAL ");
+      
+      uint8_t cursur = _curcur;
+      char tmp;
+      uint8_t slidebar = 0;
+      while (1) {
+        tmp = keypads.getKey();
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0);
+        }
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        cursur = cursur >= 3 ? 3 : cursur;
+        cursur = cursur <= 0 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+
+        if(cursur == 1){
+          popup_cal(25);
+        }else if(cursur == 2){
+          popup_cal(75);
+        }else if(cursur == 3){
+          if(tmp - '0' == 20 and slidebar == 1) break;
+          if(tmp - '0' == 20 and slidebar == 0) break;
+          switch(tmp - '0'){
+            case -6:
+              slidebar--;
+              break;
+            case -13:
+              slidebar++;
+              break;
+            default:
+              break;
+          }
+          slidebar = slidebar > 2 ? 2:slidebar;
+          slidebar = slidebar < 0 ? 0:slidebar;
+          switch(slidebar){
+            case 0:
+              lcd.setCursor(0, 3);
+              lcd.print("<USE> CANCEL  CAL ");
+              break;
+            case 1:
+              lcd.setCursor(0, 3);
+              lcd.print(" USE <CANCEL> CAL ");
+              break;
+            case 2:
+              lcd.setCursor(0, 3);
+              lcd.print(" USE  CANCEL <CAL>");
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+    uint8_t program_comfirm(int _curcur){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("PROGRAM[ ]");
+      lcd.setCursor(8, 0);
+      program_select = save.saveList;
+      lcd.print(program_select);
+      lcd.setCursor(0, 1);
+      lcd.print("USE THIS PROGRAM");
+      lcd.setCursor(0, 2);
+      lcd.print("CALIBRATION");
+      lcd.setCursor(0, 3);
+      lcd.print("BACK");
+      Serial.println("in confirm!!");
+      uint8_t cursur = _curcur;
+      char tmp;
+      while (1) {
+        Serial.println(cursur);
+        tmp = keypads.getKey();
+        if(tmp) {
+          digitalWrite(buzzer,1);
+          delay(20);
+          digitalWrite(buzzer,0);
+        }
+        if (tmp - '0' == 18) {
+          cursur--;
+        } else if (tmp - '0' == 19) {
+          cursur++;
+        }
+        if (tmp - '0' == -6) break;
+        cursur = cursur >= 3 ? 3 : cursur;
+        cursur = cursur <= 0 ? 1 : cursur;
+        clearCursor();
+        lcd.setCursor(19, cursur);
+        lcd.print("<");
+
+        if (cursur == 1 and tmp - '0' == 20){
+          program_select = save.saveList;
+          break;
+        }else if (cursur == 2 and tmp - '0' == 20) {
+          program_calibration(0);
+          break;
+        }else if (cursur == 3 and tmp - '0' == 20) {
+          break;
+        }
+        delay(frate);
+      }
+    }
     uint8_t setups(int _curcur) {
       lcd.clear();
       if (_curcur >= 0 and _curcur <= 3) {
@@ -584,15 +701,10 @@ class Menu {
         lcd.print(program_select);
         lcd.setCursor(11, 3);
         lcd.print(save.get25());
-      } else if (_curcur >= 4 and _curcur <= 5) {
+      } else if (_curcur >= 4) {
         lcd.setCursor(0, 0);
         lcd.print("MENU:SETUP");
         lcd.setCursor(0, 1);
-        lcd.print("PROGRAM EDIT : ");
-        lcd.print("    ");
-        lcd.setCursor(15, 1);
-        lcd.print(save.saveList);
-        lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
       }
       Serial.println(_curcur);
@@ -686,7 +798,7 @@ class Menu {
           datas.set_cal75(save.load75(save.saveList));
           break;
         }
-        else if (_curcur == 4) {
+        else if (_curcur == 5) {
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("MENU:PROGRAM EDIT");
@@ -770,15 +882,10 @@ class Menu {
           lcd.setCursor(0, 0);
           lcd.print("MENU:SETUP");
           lcd.setCursor(0, 1);
-          lcd.print("PROGRAM EDIT : ");
-          lcd.print("    ");
-          lcd.setCursor(15, 1);
-          lcd.print(save.saveListEdit);
-          lcd.setCursor(0, 2);
           lcd.print("ABOUT ME");
           break;
         }
-        else if (_curcur == 5) {
+        else if (_curcur == 4) {
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("MENU:ABOUT ME");
@@ -795,11 +902,6 @@ class Menu {
           lcd.setCursor(0, 0);
           lcd.print("MENU:SETUP");
           lcd.setCursor(0, 1);
-          lcd.print("PROGRAM EDIT : ");
-          lcd.print("    ");
-          lcd.setCursor(15, 1);
-          lcd.print(save.saveList);
-          lcd.setCursor(0, 2);
           lcd.print("ABOUT ME");
           break;
         }
@@ -955,7 +1057,9 @@ void loop() {
   switch (tmp - '0') {
     case 20  :
       if (menu.slidingpage == 1 and menu.cursur == 3){
-        menu.program_select = save.saveList;
+        menu.program_comfirm(0);
+        menu.cursur = 3;
+        menu.setups(menu.cursur);
       }
       break;
     case -6  :
@@ -1019,9 +1123,9 @@ void loop() {
       break;
     case 1:
       if (menu.cursur < 0) menu.cursur = 0;
-      if (menu.cursur > 5) menu.cursur = 5;
+      if (menu.cursur > 4) menu.cursur = 4;
       if (menu.cursur >= 0 and menu.cursur <= 3) menu.subpage = 0;
-      if (menu.cursur >= 4 and menu.cursur <= 5) menu.subpage = 1;
+      if (menu.cursur >= 4) menu.subpage = 1;
       menu.menucursor();
       menu.run_pwm(0);
       break;
