@@ -175,14 +175,16 @@ class Menu {
     uint8_t subpage;
     uint8_t lastsubpage;
     float cursur;
+    uint8_t program_select;
     Menu() {
       last_slidingpage = 0;
-      slidingpage   = 0;
-      page          = 0;
-      subpage       = 0;
-      cursur        = 0;
-      last_page     = 0;
-      cursur_select = 0;
+      slidingpage      = 0;
+      page             = 0;
+      subpage          = 0;
+      cursur           = 0;
+      last_page        = 0;
+      cursur_select    = 0;
+      program_select   = 0;
     }
     void menucursor() {
       clearCursor();
@@ -258,7 +260,8 @@ class Menu {
       lcd.setCursor(0, 3);
       lcd.print("PROGRAM[ ]");
       lcd.setCursor(8, 3);
-      lcd.print(save.saveList);
+      save.saveList = program_select;
+      lcd.print(program_select);
       lcd.setCursor(11, 3);
       lcd.print(save.get25());
       page = 3;
@@ -577,7 +580,8 @@ class Menu {
         lcd.setCursor(0, 3);
         lcd.print("PROGRAM[ ]");
         lcd.setCursor(8, 3);
-        lcd.print(save.saveList);
+        save.saveList = program_select;
+        lcd.print(program_select);
         lcd.setCursor(11, 3);
         lcd.print(save.get25());
       } else if (_curcur >= 4 and _curcur <= 5) {
@@ -591,6 +595,7 @@ class Menu {
         lcd.setCursor(0, 2);
         lcd.print("ABOUT ME");
       }
+      Serial.println(_curcur);
       uint8_t cursur = _curcur;
       char tmp;
       while (1) {
@@ -611,6 +616,7 @@ class Menu {
         clearCursor();
         lcd.setCursor(19, cursur);
         lcd.print("<");
+        
         if (_curcur == 1) {
           float feed;
           char tmp = keypads.getKey();
@@ -672,7 +678,6 @@ class Menu {
           break;
         }
         else if (_curcur == 3) {
-          Serial.println("saved!");
           lcd.setCursor(8, 3);
           lcd.print(save.saveList);
           lcd.setCursor(11, 3);
@@ -943,10 +948,16 @@ void loop() {
     delay(20);
     digitalWrite(buzzer,0);
   }
-  
+//  Serial.print("saveList = ");
+//  Serial.println(save.saveList);
   menu.last_slidingpage = menu.slidingpage;
   menu.lastsubpage      = menu.subpage;
   switch (tmp - '0') {
+    case 20  :
+      if (menu.slidingpage == 1 and menu.cursur == 3){
+        menu.program_select = save.saveList;
+      }
+      break;
     case -6  :
       if (menu.slidingpage == 1 and menu.cursur == 3) {
         save.saveList--;
@@ -978,6 +989,9 @@ void loop() {
     case  19 : menu.cursur++;      break;
     default  :                     break;
   }
+
+
+  
   if (menu.slidingpage > 3) menu.slidingpage = 0;
   if (menu.slidingpage < 0) menu.slidingpage = 3;
 
@@ -1071,7 +1085,7 @@ void loop() {
     if(tmp == 3) menu.slidingpage++;
 //    menu.main_page_4();
   }
-
+//  Serial.println(menu.cursur);
   delay(frate);
 }
 
