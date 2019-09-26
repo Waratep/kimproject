@@ -729,13 +729,41 @@ class Menu {
 
         if(cursur == 1 and tmp - '0' == 20){
           cal25 = popup_cal(25);
-          program_calibration(cursur);
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("PROGRAM[ ]");
+          lcd.setCursor(8, 0);
+          lcd.print(program_select);
+          lcd.setCursor(0, 1);
+          lcd.print("CAL@25 : ");
+          lcd.print(save.load25(save.saveListEdit));
+          lcd.setCursor(0, 2);
+          lcd.print("CAL@75 : ");
+          lcd.print(save.load75(save.saveListEdit));
+          lcd.setCursor(0, 3);
+          lcd.print("<USE> CANCEL  CAL ");
         }else if(cursur == 2 and tmp - '0' == 20){
           cal75 = popup_cal(75);
-          program_calibration(cursur);
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("PROGRAM[ ]");
+          lcd.setCursor(8, 0);
+          lcd.print(program_select);
+          lcd.setCursor(0, 1);
+          lcd.print("CAL@25 : ");
+          lcd.print(save.load25(save.saveListEdit));
+          lcd.setCursor(0, 2);
+          lcd.print("CAL@75 : ");
+          lcd.print(save.load75(save.saveListEdit));
+          lcd.setCursor(0, 3);
+          lcd.print("<USE> CANCEL  CAL ");
         }else if(cursur == 3){
           if(tmp - '0' == 20 and slidebar == 1) break;
-          if(tmp - '0' == 20 and slidebar == 0) break;
+          if(tmp - '0' == 20 and slidebar == 0) {
+            datas.set_cal25(cal25);
+            datas.set_cal75(cal75);
+            break;
+          }
           switch(tmp - '0'){
             case -6:
               slidebar--;
@@ -809,6 +837,7 @@ class Menu {
           break;
         }else if (cursur == 2 and tmp - '0' == 20) {
           program_calibration(0);
+          program_comfirm(0);
           break;
         }else if (cursur == 3 and tmp - '0' == 20) {
           break;
