@@ -554,8 +554,141 @@ class Menu {
       }
       subpage = 1;
     }
-    uint8_t popup_cal(uint8_t _cal){
-      
+    float popup_cal(uint8_t _cal){
+      float cal25 , cal75;
+      uint16_t millisec = 0;
+      int timer = -5;
+      char tmp;
+      lcd.clear();
+      lcd.setCursor(2, 2);
+      lcd.print("counte down : ");
+      lcd.print(timer);
+      switch(_cal){
+        case 25:
+          while(1){
+            delay(frate);
+            tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
+            if (tmp - '0' == 20) {
+              float val = 0 , counter = 0;
+              lcd.clear();
+              lcd.setCursor(2, 2);
+              lcd.print("CAL25 : ");
+              char tmp;
+              tmp = keypads.getKey();
+              while (tmp - '0' != 20) {
+                delay(frate);
+                tmp = keypads.getKey();
+                if(tmp) {
+                  digitalWrite(buzzer,1);
+                  delay(20);
+                  digitalWrite(buzzer,0);
+                }
+                if (tmp and tmp - '0' != 20) {
+                  if (counter == 0) val += (tmp - '0') * 1000;
+                  if (counter == 1) val += (tmp - '0') * 100;
+                  if (counter == 2) val += (tmp - '0') * 10;
+                  if (counter == 3) val += (tmp - '0') * 1;
+                  counter++;
+                }
+                lcd.clear();
+                lcd.setCursor(2, 2);
+                lcd.print("CAL25 : ");
+                lcd.print(val/10);
+              }
+               save.saved25(val / 10, save.saveListEdit);
+              break;
+            }
+
+            if (digitalRead(run_bt) and state_run == 0) {
+              state_run = 1;
+            }
+            else if (!digitalRead(run_bt) and state_run == 1) {
+              state_run = 0;
+            }
+            if(state_run and millis() - millisec >= 1000){
+              millisec = millis();
+              lcd.clear();
+              lcd.setCursor(2, 2);
+              lcd.print("counte down : ");
+              lcd.print(timer);
+              timer++;
+//              if(i > 0 and !(timer % 10)){
+                digitalWrite(buzzer,1);
+                delay(20);
+                digitalWrite(buzzer,0);
+//              }
+            }
+          }
+        break;
+        case 75:
+          while(1){
+            delay(frate);
+            tmp = keypads.getKey();
+            if(tmp) {
+              digitalWrite(buzzer,1);
+              delay(20);
+              digitalWrite(buzzer,0);
+            }
+            if (tmp - '0' == 20) {
+              float val = 0 , counter = 0;
+              lcd.clear();
+              lcd.setCursor(2, 2);
+              lcd.print("CAL75 : ");
+              char tmp;
+              tmp = keypads.getKey();
+              while (tmp - '0' != 20) {
+                delay(frate);
+                tmp = keypads.getKey();
+                if(tmp) {
+                  digitalWrite(buzzer,1);
+                  delay(20);
+                  digitalWrite(buzzer,0);
+                }
+                if (tmp and tmp - '0' != 20) {
+                  if (counter == 0) val += (tmp - '0') * 1000;
+                  if (counter == 1) val += (tmp - '0') * 100;
+                  if (counter == 2) val += (tmp - '0') * 10;
+                  if (counter == 3) val += (tmp - '0') * 1;
+                  counter++;
+                }
+                lcd.clear();
+                lcd.setCursor(2, 2);
+                lcd.print("CAL75 : ");
+                lcd.print(val/10);
+              }
+               save.saved75(val / 10, save.saveListEdit);
+              break;
+            }
+
+            if (digitalRead(run_bt) and state_run == 0) {
+              state_run = 1;
+            }
+            else if (!digitalRead(run_bt) and state_run == 1) {
+              state_run = 0;
+            }
+            if(state_run and millis() - millisec >= 1000){
+              millisec = millis();
+              lcd.clear();
+              lcd.setCursor(2, 2);
+              lcd.print("counte down : ");
+              lcd.print(timer);
+              timer++;
+//              if(i > 0 and !(timer % 10)){
+                digitalWrite(buzzer,1);
+                delay(20);
+                digitalWrite(buzzer,0);
+//              }
+            }
+          }
+        break;
+        default:
+        break;
+      }
     }
     uint8_t program_calibration(int _curcur){
       lcd.clear();
@@ -575,6 +708,7 @@ class Menu {
       uint8_t cursur = _curcur;
       char tmp;
       uint8_t slidebar = 0;
+      float cal25 , cal75;
       while (1) {
         tmp = keypads.getKey();
         if(tmp) {
@@ -593,10 +727,12 @@ class Menu {
         lcd.setCursor(19, cursur);
         lcd.print("<");
 
-        if(cursur == 1){
-          popup_cal(25);
-        }else if(cursur == 2){
-          popup_cal(75);
+        if(cursur == 1 and tmp - '0' == 20){
+          cal25 = popup_cal(25);
+          program_calibration(cursur);
+        }else if(cursur == 2 and tmp - '0' == 20){
+          cal75 = popup_cal(75);
+          program_calibration(cursur);
         }else if(cursur == 3){
           if(tmp - '0' == 20 and slidebar == 1) break;
           if(tmp - '0' == 20 and slidebar == 0) break;
@@ -629,6 +765,7 @@ class Menu {
               break;
           }
         }
+        delay(frate);
       }
     }
     uint8_t program_comfirm(int _curcur){
